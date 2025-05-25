@@ -1,0 +1,21 @@
+.env
+.env.local
+.envrc
+bin/
+database/
+database/*
+
+# Go
+/bin
+*.log
+
+# Node / Next.js
+web/gopher-chat-fe/node_modules
+web/gopher-chat-fe/.next
+web/gopher-chat-fe/.env*
+
+# Postgres database data
+/database/gopher-chat-data
+
+# OS
+.DS_Store
