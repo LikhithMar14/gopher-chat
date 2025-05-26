@@ -8,6 +8,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+
+
 func (app *Application) Routes() *chi.Mux {
 	r := chi.NewRouter()
 

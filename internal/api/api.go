@@ -16,6 +16,7 @@ type Application struct {
 	Store       store.Storage
 	UserService *service.UserService
 	PostService *service.PostService
+
 }
 
 func NewApplication(cfg config.Config, store store.Storage) *Application {

@@ -35,6 +35,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	return decoder.Decode(data)
 }
 
+
 func WriteJSONError(w http.ResponseWriter, status int, message string) error {
 	return WriteJSON(w, status, Envelope{"error": message})
 }

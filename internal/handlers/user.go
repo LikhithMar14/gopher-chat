@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 )
@@ -23,7 +24,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.userService.GetUsers(ctx)
 	if err != nil {
-		utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to get users")
+		apperrors.NewInternalError(err.Error())
 		return
 	}
 
@@ -33,7 +34,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := utils.WriteJSON(w, http.StatusOK, data); err != nil {
-		utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to write response")
+		apperrors.NewInternalError(err.Error())
 	}
 }
 
@@ -42,13 +43,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req service.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteJSONError(w, http.StatusBadRequest, "Invalid JSON")
+		apperrors.NewBadRequestError(err.Error())
 		return
 	}
 
 	user, err := h.userService.CreateUser(ctx, req)
 	if err != nil {
-		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
+		apperrors.NewBadRequestError(err.Error())
 		return
 	}
 
@@ -58,6 +59,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := utils.WriteJSON(w, http.StatusCreated, data); err != nil {
-		utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to write response")
+		apperrors.NewInternalError(err.Error())
 	}
 }

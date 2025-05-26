@@ -3,12 +3,14 @@ package store
 import (
 	"context"
 	"database/sql"
-	"errors"
+
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
 )
 
 var (
-	ErrNotFound = errors.New("record not found")
+	ErrNotFound = apperrors.ErrNotFound
 )
+
 type Storage struct {
 	Post PostRepository
 	User UserRepository

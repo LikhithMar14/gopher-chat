@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
+	"github.com/LikhithMar14/gopher-chat/internal/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 )
@@ -19,16 +19,14 @@ func NewPostHandler(postService *service.PostService) *PostHandler {
 	}
 }
 
-var (
-	ErrNotFound     = errors.New("record not found")
-	ErrInternal     = errors.New("internal server error")
-	ErrInvalidInput = errors.New("invalid input format")
-)
-
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var req service.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteJSONError(w, http.StatusBadRequest, ErrInvalidInput.Error())
+		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := service.Validate.Struct(req); err != nil {
+		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())	
 		return
 	}
 	ctx := r.Context()
@@ -44,18 +42,20 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ReadIDParam(r)
 	if err != nil {
-		utils.WriteJSONError(w, http.StatusBadRequest, "Invalid Post ID")
+		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	ctx := r.Context()
 	ctx = utils.SetUserID(ctx, int64(1))
 	post, err := h.postService.GetPostByID(ctx, id)
+
 	if err != nil {
 		switch {
-		case err == ErrNotFound:
-			utils.WriteJSONError(w, http.StatusNotFound, "Post not found")
-		default:
-			utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+			case err == errors.ErrNotFound:
+				utils.WriteJSONError(w, http.StatusNotFound, err.Error())
+				return
+			default:
+				utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
