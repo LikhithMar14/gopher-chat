@@ -16,6 +16,7 @@ type PostRepository interface {
 
 type UserRepository interface {
 	Create(context.Context, *User) error
+	GetAll(context.Context) ([]User, error)
 }
 
 func NewStorage(db *sql.DB) Storage {
