@@ -19,12 +19,20 @@ func (app *Application) Routes() *chi.Mux {
 
 	healthHandler := handlers.NewHealthHandler(app.Config)
 	userHandler := handlers.NewUserHandler(app.UserService)
+	postHandler := handlers.NewPostHandler(app.PostService)
+	r.Route("/v1", func(r chi.Router) {
 
-	r.Get("/v1/health", healthHandler.Handle)
+		r.Get("/health", healthHandler.Handle)
 
-	r.Route("/v1/users", func(r chi.Router) {
-		r.Get("/", userHandler.GetUsers)
-		r.Post("/", userHandler.CreateUser)
+		r.Route("/users", func(r chi.Router) {
+			r.Get("/", userHandler.GetUsers)
+			r.Post("/", userHandler.CreateUser)
+		})
+
+		r.Route("/posts", func(r chi.Router) {
+			r.Post("/", postHandler.CreatePost)
+			r.Get("/{id}", postHandler.GetPostByID)
+		})
 	})
 
 	return r

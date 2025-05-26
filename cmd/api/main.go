@@ -21,7 +21,8 @@ func main() {
 	}
 	defer database.Close()
 
-
+	
+	// should give the path related to where you are doing goose.Up
 	err = db.MigrateFS(database, migrations.FS, ".")
 	if err != nil {
 		log.Fatal(err)

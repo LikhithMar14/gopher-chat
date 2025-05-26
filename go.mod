@@ -5,10 +5,10 @@ go 1.24.2
 require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/jackc/pgx/v4 v4.18.3
-	github.com/lib/pq v1.10.9
 )
 
 require (
+	github.com/lib/pq v1.10.9
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect

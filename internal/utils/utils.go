@@ -4,7 +4,9 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 )
 
 
@@ -35,4 +37,13 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 
 func WriteJSONError(w http.ResponseWriter, status int, message string) error {
 	return WriteJSON(w, status, Envelope{"error": message})
+}
+
+func ReadIDParam(r *http.Request) (int64, error) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
