@@ -16,17 +16,19 @@ type Application struct {
 	Store       store.Storage
 	UserService *service.UserService
 	PostService *service.PostService
-
+	CommentService *service.CommentService
 }
 
 func NewApplication(cfg config.Config, store store.Storage) *Application {
 	userService := service.NewUserService(store)
 	postService := service.NewPostService(store)
+	commentService := service.NewCommentService(store)
 	return &Application{
 		Config:      cfg,
 		Store:       store,
 		UserService: userService,
 		PostService: postService,
+		CommentService: commentService,
 	}
 }
 

@@ -1,18 +1,23 @@
 package utils
 
-import "context"
+import (
+	"context"
 
-type contextKey string
+)
 
-const UserIDKey contextKey = "user_id"
+type PostContextKey string
+const PostIDKey PostContextKey = "post_id"
 
-// SetUserID sets the user ID in the context
+type UserContextKey string
+const UserIDKey UserContextKey = "user_id"
+
 func SetUserID(ctx context.Context, userID int64) context.Context {
 	return context.WithValue(ctx, UserIDKey, userID)
 }
 
-// GetUserID retrieves the user ID from the context
+
 func GetUserID(ctx context.Context) (int64, bool) {
 	userID, ok := ctx.Value(UserIDKey).(int64)
 	return userID, ok
 }
+

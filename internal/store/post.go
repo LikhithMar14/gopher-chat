@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
 	"github.com/lib/pq"
 )
 type Post struct {
@@ -13,6 +14,7 @@ type Post struct {
 	Title string `json:"title"`
 	UserID int64 `json:"user_id"`
 	Tags []string `json:"tags"`
+	Comments []*Comment `json:"comments"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -52,4 +54,45 @@ func (s *PostStorage)GetByID(ctx context.Context,id int64) (*Post, error){
 	}
 
 	return &post, nil
+}
+
+func (s *PostStorage) Delete(ctx context.Context, id int64) error {
+	query := `
+		DELETE FROM posts
+		WHERE id = $1
+	`
+
+	res, err := s.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return apperrors.ErrPostNotFound
+	}
+	return nil
+}
+
+func (s *PostStorage)Update(ctx context.Context, post *Post) error {
+	query := `
+		UPDATE posts
+		SET title=$1, content=$2, tags=$3, updated_at=$4
+		WHERE id=$5
+	`
+
+	res, err := s.db.ExecContext(ctx, query, post.Title, post.Content, pq.Array(post.Tags), time.Now(), post.ID)
+	if err != nil {
+		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return apperrors.ErrPostNotFound
+	}
+	return nil
 }
