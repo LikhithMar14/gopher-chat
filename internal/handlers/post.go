@@ -2,34 +2,37 @@ package handlers
 
 import (
 	"encoding/json"
+
 	"net/http"
 
+	"errors"
+
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
-	"errors"	
+	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 )
 
 type PostHandler struct {
-	postService *service.PostService
+	postService    *service.PostService
 	commentService *service.CommentService
 }
 
 func NewPostHandler(postService *service.PostService, commentService *service.CommentService) *PostHandler {
 	return &PostHandler{
-		postService: postService,
+		postService:    postService,
 		commentService: commentService,
 	}
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	var req service.CreatePostRequest
+	var req models.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := service.Validate.Struct(req); err != nil {
-		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())	
+		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	ctx := r.Context()
@@ -49,7 +52,7 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJSONError(w, http.StatusNotFound, "Post not found")
 		return
 	}
-	comments , err := h.commentService.GetCommentsByPostID(ctx, post.ID)
+	comments, err := h.commentService.GetCommentsByPostID(ctx, post.ID)
 	if err != nil {
 		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -66,22 +69,22 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx = utils.SetUserID(ctx, int64(1))
 	if err := h.postService.DeletePost(ctx, id); err != nil {
-		
+
 		switch {
-			case err == apperrors.ErrPostNotFound:
-				utils.WriteJSONError(w, http.StatusNotFound, apperrors.ErrPostNotFound.Error())
-				return
-			default:
-				utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		case err == apperrors.ErrPostNotFound:
+			utils.WriteJSONError(w, http.StatusNotFound, apperrors.ErrPostNotFound.Error())
+			return
+		default:
+			utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"message": "Post deleted successfully"})
 }
 
-func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request){
+func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
-	var req service.UpdatePostRequest
+	var req models.UpdatePostRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
@@ -95,15 +98,16 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request){
 	post, err := h.postService.UpdatePost(r.Context(), req)
 	if err != nil {
 		switch {
-			case errors.Is(err, apperrors.ErrPostNotFound):
+		case errors.Is(err, apperrors.ErrPostNotFound):
 			utils.WriteJSONError(w, http.StatusNotFound, apperrors.ErrPostNotFound.Error())
 			return
+		case errors.Is(err, apperrors.ErrVersionConflict):
+			utils.WriteJSONError(w, http.StatusConflict, apperrors.ErrVersionConflict.Error())
+			return
 		default:
-			utils.WriteJSONError(w, http.StatusInternalServerError, apperrors.ErrPostNotFound.Error())
+			utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-		return
 	}
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"post": post})
-	
 }
-

@@ -25,14 +25,13 @@ var (
 	ErrPasswordTooShort   = errors.New("password must be at least 6 characters")
 )
 
-
 var (
 	ErrPostNotFound        = errors.New("post not found")
 	ErrInvalidPostID       = errors.New("invalid post ID")
 	ErrPostTitleRequired   = errors.New("post title is required")
 	ErrPostContentRequired = errors.New("post content is required")
+	ErrVersionConflict     = errors.New("version conflict - post was modified by another request")
 )
-
 
 var (
 	ErrUserIDNotFound = errors.New("user_id not found in context")
@@ -82,4 +81,3 @@ func NewValidationError(message string) *AppError {
 func NewConflictError(message string) *AppError {
 	return NewAppError(ErrConflict, http.StatusConflict, message)
 }
-	

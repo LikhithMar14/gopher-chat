@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 )
 
@@ -18,7 +19,7 @@ func NewUserService(store store.Storage) *UserService {
 }
 
 
-func (s *UserService) GetUsers(ctx context.Context) ([]store.User, error) {
+func (s *UserService) GetUsers(ctx context.Context) ([]models.User, error) {
 	users, err := s.store.User.GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get users: %w", err)
@@ -27,12 +28,12 @@ func (s *UserService) GetUsers(ctx context.Context) ([]store.User, error) {
 	return users, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*store.User, error) {
+func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserRequest) (*models.User, error) {
 	if err := s.validateCreateUserRequest(req); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	user := &store.User{
+	user := &models.User{
 		Username:     req.Username,
 		Email:        req.Email,
 		PasswordHash: req.Password,
@@ -45,13 +46,9 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*s
 	return user, nil
 }
 
-type CreateUserRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
 
-func (s *UserService) validateCreateUserRequest(req CreateUserRequest) error {
+
+func (s *UserService) validateCreateUserRequest(req models.CreateUserRequest) error {
 	if req.Username == "" {
 		return fmt.Errorf("username is required")
 	}

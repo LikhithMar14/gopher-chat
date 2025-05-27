@@ -4,27 +4,41 @@ import (
 	"context"
 	"database/sql"
 	"time"
+	"github.com/LikhithMar14/gopher-chat/internal/models"
 )
 
-type Comment struct {
-	ID        int64
-	PostID    int64
-	UserID    int64
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	User 	 User
-}
+
 
 type CommentStorage struct {
 	db *sql.DB
 }
+type CreateCommentRequest struct {
+	PostID int64
+	UserID int64
+	Content string
+}
+func (s *CommentStorage) Create(ctx context.Context, comment *models.Comment) (*models.Comment, error) {
+	query := `
+		INSERT INTO comments (post_id, user_id, content)
+		VALUES ($1, $2, $3)
+		RETURNING id, post_id, user_id, content, created_at, updated_at
+	`
+	ctx,cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-func (s *CommentStorage) Create(ctx context.Context, comment *Comment) (*Comment, error) {
-	return nil, nil
+	row := s.db.QueryRowContext(ctx, query, comment.PostID, comment.UserID, comment.Content)
+
+	var c models.Comment
+	err := row.Scan(&c.ID, &c.PostID, &c.UserID, &c.Content, &c.CreatedAt, &c.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &c, nil
 }
 
-func (s *CommentStorage) GetByPostID(ctx context.Context, postID int64) ([]*Comment, error) {
+
+func (s *CommentStorage) GetByPostID(ctx context.Context, postID int64) ([]*models.Comment, error) {
 	query := `
 		SELECT c.id, c.post_id, c.user_id, c.content, c.created_at, c.updated_at, u.username, u.id
 		FROM comments c
@@ -39,11 +53,11 @@ func (s *CommentStorage) GetByPostID(ctx context.Context, postID int64) ([]*Comm
 	}
 	defer rows.Close()
 
-	comments := []*Comment{}
+	comments := []*models.Comment{}
 
 	for rows.Next(){
-		var c Comment
-		c.User = User{}
+		var c models.Comment
+		c.User = models.User{}
 
 		err := rows.Scan(&c.ID, &c.PostID, &c.UserID, &c.Content, &c.CreatedAt, &c.UpdatedAt, &c.User.Username, &c.User.ID)
 		if err != nil {

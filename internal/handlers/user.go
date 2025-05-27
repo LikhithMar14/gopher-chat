@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
+	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 )
@@ -41,7 +42,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req service.CreateUserRequest
+	var req models.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		apperrors.NewBadRequestError(err.Error())
 		return

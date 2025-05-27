@@ -2,24 +2,15 @@ package service
 
 import (
 	"context"
-	"log"
+	"errors"
 
-	"github.com/LikhithMar14/gopher-chat/internal/errors"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
+	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
-
 )
 
-type CreatePostRequest struct {
-	Title   string   `json:"title" validate:"required,min=3,max=100"`
-	Content string   `json:"content" validate:"required,min=10,max=1000"`
-	Tags    []string `json:"tags" validate:"required,min=1,max=5"`
-}
-type UpdatePostRequest struct {
-	Title   *string   `json:"title" validate:"omitempty,max=100"`
-	Content *string   `json:"content" validate:"omitempty,max=1000"`
-	Tags    *[]string `json:"tags" validate:"omitempty,max=5"`
-}
+
 type PostService struct {
 	store store.Storage
 }
@@ -30,18 +21,15 @@ func NewPostService(store store.Storage) *PostService {
 	}
 }
 
-func (s *PostService) CreatePost(ctx context.Context, req CreatePostRequest) (*store.Post, error) {
-	var post store.Post
+func (s *PostService) CreatePost(ctx context.Context, req models.CreatePostRequest) (*models.Post, error) {
+	var post models.Post
 	userID, ok := utils.GetUserID(ctx)
 	if err := Validate.Struct(req); err != nil {
-		log.Print("Validation error",err)
 		return nil, err
 	}
 	if !ok {
-		log.Println("user_id not found in context")
-		return nil, errors.ErrUserIDNotFound
+		return nil, apperrors.ErrUserIDNotFound
 	}
-	log.Println("userID",userID)
 	post.Title = req.Title
 	post.Content = req.Content
 	post.UserID = userID
@@ -52,13 +40,12 @@ func (s *PostService) CreatePost(ctx context.Context, req CreatePostRequest) (*s
 	return &post, nil
 }
 
-func (s *PostService) GetPostByID(ctx context.Context, id int64) (*store.Post, error) {
+func (s *PostService) GetPostByID(ctx context.Context, id int64) (*models.Post, error) {
 	post, err := s.store.Post.GetByID(ctx, id)
 	if err != nil {
-		switch{
-		case err == errors.ErrNotFound:
-			log.Println("Error from Service GetPostByID",err)
-			return nil, errors.ErrPostNotFound
+		switch {
+		case err == apperrors.ErrNotFound:
+			return nil, apperrors.ErrPostNotFound
 		default:
 			return nil, err
 		}
@@ -72,29 +59,51 @@ func (s *PostService) DeletePost(ctx context.Context, id int64) error {
 	return nil
 }
 
-
-func (s *PostService) UpdatePost(ctx context.Context, req UpdatePostRequest) (*store.Post, error) {
-	post, ok := s.GetPostFromContext(ctx)
-
+func (s *PostService) UpdatePost(ctx context.Context, req models.UpdatePostRequest) (*models.Post, error) {
+	// Get the post ID from context (set by middleware)
+	postFromContext, ok := s.GetPostFromContext(ctx)
 	if !ok {
-		return nil, errors.ErrPostNotFound
+		return nil, apperrors.ErrPostNotFound
 	}
-	if req.Title != nil {
-	post.Title = *req.Title
+
+	// Use optimistic locking with retry logic
+	const maxRetries = 3
+	var lastErr error
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		post, err := s.store.Post.UpdateWithOptimisticLocking(ctx, postFromContext.ID, func(p *models.Post) error {
+			// Apply the updates to the fresh post data
+			if req.Title != nil {
+				p.Title = *req.Title
+			}
+			if req.Content != nil {
+				p.Content = *req.Content
+			}
+			if req.Tags != nil {
+				p.Tags = *req.Tags
+			}
+			return nil
+		})
+
+		if err != nil {
+			lastErr = err
+			// If it's a version conflict, retry
+			if errors.Is(err, apperrors.ErrVersionConflict) {
+				continue
+			}
+			// For other errors, return immediately
+			return nil, err
+		}
+
+		// Success - return the updated post
+		return post, nil
 	}
-	if req.Content != nil {
-		post.Content = *req.Content
-	}
-	if req.Tags != nil {
-		post.Tags = *req.Tags
-	}
-	if err := s.store.Post.Update(ctx, post); err != nil {
-		return nil, err
-	}
-	return post, nil
+
+	// If we exhausted all retries, return the last error
+	return nil, lastErr
 }
 
-func (s *PostService) GetPostFromContext(ctx context.Context) (*store.Post, bool) {
-	post, ok := ctx.Value(utils.PostIDKey).(*store.Post)
+func (s *PostService) GetPostFromContext(ctx context.Context) (*models.Post, bool) {
+	post, ok := ctx.Value(utils.PostIDKey).(*models.Post)
 	return post, ok
 }
