@@ -163,7 +163,15 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 	commentTemplates := generateComments(500, createdUsers, createdPosts)
 
 	for _, commentTemplate := range commentTemplates {
-		if _, err := commentService.CreateComment(ctx, commentTemplate); err != nil {
+		// Set user and post context for the comment creation
+		ctxWithUser := utils.SetUserID(ctx, commentTemplate.UserID)
+		ctxWithPost := context.WithValue(ctxWithUser, utils.PostIDKey, &models.Post{ID: commentTemplate.PostID})
+
+		req := &models.CreateCommentRequest{
+			Content: commentTemplate.Content,
+		}
+
+		if _, err := commentService.CreateComment(ctxWithPost, req); err != nil {
 			log.Println("Error creating comment: ", err)
 			return err
 		}

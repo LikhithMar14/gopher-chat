@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 )
 
 type UserHandler struct {
@@ -25,18 +27,16 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.userService.GetUsers(ctx)
 	if err != nil {
-		apperrors.NewInternalError(err.Error())
+		utils.HandleInternalError(w, err)
 		return
 	}
 
-	data := utils.Envelope{
+	data := map[string]interface{}{
 		"users": users,
 		"count": len(users),
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, data); err != nil {
-		apperrors.NewInternalError(err.Error())
-	}
+	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -44,22 +44,50 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req models.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		apperrors.NewBadRequestError(err.Error())
+		utils.HandleValidationError(w, err)
 		return
 	}
 
 	user, err := h.userService.CreateUser(ctx, req)
 	if err != nil {
-		apperrors.NewBadRequestError(err.Error())
+		switch {
+		case errors.Is(err, apperrors.ErrValidation):
+			utils.HandleValidationError(w, err)
+		default:
+			utils.HandleInternalError(w, err)
+		}
 		return
 	}
 
-	data := utils.Envelope{
+	data := map[string]interface{}{
 		"user":    user,
 		"message": "User created successfully",
 	}
 
-	if err := utils.WriteJSON(w, http.StatusCreated, data); err != nil {
-		apperrors.NewInternalError(err.Error())
+	utils.WriteSuccessResponse(w, http.StatusCreated, data)
+}
+
+func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	log.Println("ctx", ctx)
+	user, ok := h.userService.GetUserFromContext(ctx)
+	if !ok {
+		utils.WriteErrorResponse(w, http.StatusNotFound, "User not found")
+		return
 	}
+	data := map[string]interface{}{
+		"user": user,
+		"message": "User fetched successfully",
+		"success": true,
+	}
+
+	utils.WriteSuccessResponse(w, http.StatusOK, data)
+}
+
+func (h *UserHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
+	
+}
+
+func (h *UserHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	
 }

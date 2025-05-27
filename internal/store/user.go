@@ -45,3 +45,21 @@ func (s *UserStorage) GetAll(ctx context.Context) ([]models.User, error) {
 
 	return users, nil
 }
+
+func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, error) {
+	query := `SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = $1`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var user models.User
+	err := s.db.QueryRowContext(ctx, query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		switch {
+		case err == sql.ErrNoRows:
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+	return &user, nil
+}

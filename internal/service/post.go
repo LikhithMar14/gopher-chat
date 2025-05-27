@@ -107,3 +107,4 @@ func (s *PostService) GetPostFromContext(ctx context.Context) (*models.Post, boo
 	post, ok := ctx.Value(utils.PostIDKey).(*models.Post)
 	return post, ok
 }
+

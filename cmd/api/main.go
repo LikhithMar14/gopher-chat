@@ -29,11 +29,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("database connection pool established")
+	log.Println("Database connection pool established and migrated successfully")
 
 	storage := store.NewStorage(database)
 
 	app := api.NewApplication(cfg, storage)
+
 
 	mux := app.Routes()
 

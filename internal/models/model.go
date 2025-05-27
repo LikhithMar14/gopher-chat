@@ -15,13 +15,13 @@ type Post struct {
 }
 
 type Comment struct {
-	ID        int64
-	PostID    int64
-	UserID    int64
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	User 	 User
+	ID        int64     `json:"id"`
+	PostID    int64     `json:"post_id"`
+	UserID    int64     `json:"user_id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	User      User      `json:"user"`
 }
 
 type User struct {
@@ -48,4 +48,7 @@ type CreateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+type CreateCommentRequest struct {
+	Content string `json:"content" validate:"required,min=1,max=500"`
 }

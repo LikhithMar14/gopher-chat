@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 )
@@ -35,6 +36,12 @@ var (
 
 var (
 	ErrUserIDNotFound = errors.New("user_id not found in context")
+)
+
+var (
+	ErrCommentNotFound        = errors.New("comment not found")
+	ErrCommentContentRequired = errors.New("comment content is required")
+	ErrCommentTooLong         = errors.New("comment content is too long")
 )
 
 type AppError struct {
@@ -80,4 +87,36 @@ func NewValidationError(message string) *AppError {
 
 func NewConflictError(message string) *AppError {
 	return NewAppError(ErrConflict, http.StatusConflict, message)
+}
+
+// HTTP Error Response helpers
+func WriteErrorResponse(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	response := map[string]interface{}{
+		"error":  message,
+		"status": statusCode,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
+func HandleServiceError(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, ErrUserNotFound):
+		WriteErrorResponse(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, ErrPostNotFound):
+		WriteErrorResponse(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, ErrCommentNotFound):
+		WriteErrorResponse(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, ErrUserIDNotFound):
+		WriteErrorResponse(w, http.StatusUnauthorized, err.Error())
+	case errors.Is(err, ErrVersionConflict):
+		WriteErrorResponse(w, http.StatusConflict, err.Error())
+	case errors.Is(err, ErrValidation):
+		WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+	default:
+		WriteErrorResponse(w, http.StatusInternalServerError, "Internal server error")
+	}
 }

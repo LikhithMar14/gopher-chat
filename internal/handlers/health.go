@@ -20,13 +20,13 @@ func NewHealthHandler(cfg config.Config) *HealthHandler {
 }
 
 func (h *HealthHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	data := utils.Envelope{
+	data := map[string]interface{}{
 		"status":      "ok",
 		"environment": h.config.Env,
 		"version":     version,
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, data); err != nil {
-		utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to write response")
+	if err := utils.WriteSuccessResponse(w, http.StatusOK, data); err != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to write response")
 	}
 }

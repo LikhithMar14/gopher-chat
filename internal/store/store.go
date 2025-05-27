@@ -12,7 +12,7 @@ import (
 var (
 	ErrNotFound = apperrors.ErrNotFound
 )
-const QueryTimeoutDuration = 5 * time.Second
+const QueryTimeoutDuration = 3 * time.Second
 
 type Storage struct {
 	Post    PostRepository
@@ -31,6 +31,7 @@ type PostRepository interface {
 type UserRepository interface {
 	Create(context.Context, *models.User) error
 	GetAll(context.Context) ([]models.User, error)
+	GetByID(context.Context, int64) (*models.User, error)
 }
 type CommentRepository interface {
 	Create(context.Context, *models.Comment) (*models.Comment, error)

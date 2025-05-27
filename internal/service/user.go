@@ -6,6 +6,8 @@ import (
 
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
+	"github.com/LikhithMar14/gopher-chat/internal/utils"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 )
 
 type UserService struct {
@@ -17,7 +19,6 @@ func NewUserService(store store.Storage) *UserService {
 		store: store,
 	}
 }
-
 
 func (s *UserService) GetUsers(ctx context.Context) ([]models.User, error) {
 	users, err := s.store.User.GetAll(ctx)
@@ -46,8 +47,6 @@ func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserReque
 	return user, nil
 }
 
-
-
 func (s *UserService) validateCreateUserRequest(req models.CreateUserRequest) error {
 	if req.Username == "" {
 		return fmt.Errorf("username is required")
@@ -62,4 +61,22 @@ func (s *UserService) validateCreateUserRequest(req models.CreateUserRequest) er
 		return fmt.Errorf("password must be at least 6 characters")
 	}
 	return nil
+}
+
+func (s *UserService) GetUserByID(ctx context.Context, userID int64) (*models.User, error) {
+	user, err := s.store.User.GetByID(ctx, userID)
+	if err != nil {
+		switch {
+		case err == store.ErrNotFound:
+			return nil, apperrors.ErrUserNotFound
+		default:
+			return nil, fmt.Errorf("failed to get user by id: %w", err)
+		}
+	}
+	return user, nil
+}
+
+func (s *UserService) GetUserFromContext(ctx context.Context) (*models.User, bool) {
+	user, ok := ctx.Value(utils.UserIDKey).(*models.User)
+	return user, ok
 }
