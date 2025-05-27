@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/LikhithMar14/gopher-chat/internal/config"
+	"github.com/LikhithMar14/gopher-chat/internal/utils/env"
 	"github.com/LikhithMar14/gopher-chat/internal/db"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
@@ -17,8 +18,26 @@ func main() {
 		log.Fatal(err)
 	}
 	defer database.Close()
+	
+	log.Println("Seeding database...")
+
+	if env.GetString("ENV", "development") == "development" {
+		_,err = database.Exec(`
+			TRUNCATE TABLE users CASCADE;
+			TRUNCATE TABLE posts CASCADE;
+			TRUNCATE TABLE comments CASCADE;
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Truncated tables")
+	}
+
+	
 
 	storage := store.NewStorage(database)
+
+		
 
 	userService := service.NewUserService(storage)
 	postService := service.NewPostService(storage)

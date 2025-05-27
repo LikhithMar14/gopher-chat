@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 )
 

@@ -125,7 +125,6 @@ var Comments = []string{
 func Seed(db *sql.DB, userService *service.UserService, postService *service.PostService, commentService *service.CommentService) error {
 	ctx := context.Background()
 
-	
 	userTemplates := generateUsers(100)
 	var createdUsers []*models.User
 
@@ -142,12 +141,11 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 		createdUsers = append(createdUsers, createdUser)
 	}
 
-
 	postTemplates := generatePosts(200, createdUsers)
 	var createdPosts []*models.Post
 
 	for _, postTemplate := range postTemplates {
-		
+
 		ctxWithUser := utils.SetUserID(ctx, postTemplate.UserID)
 
 		createdPost, err := postService.CreatePost(ctxWithUser, models.CreatePostRequest{
@@ -162,7 +160,6 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 		createdPosts = append(createdPosts, createdPost)
 	}
 
-
 	commentTemplates := generateComments(500, createdUsers, createdPosts)
 
 	for _, commentTemplate := range commentTemplates {
@@ -175,14 +172,14 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 	return nil
 }
 
-
 func generateUsers(num int) []*models.User {
 	users := make([]*models.User, num)
 
 	for i := range num {
+		baseUsername := Usernames[i%len(Usernames)]
 		users[i] = &models.User{
-			Username:     Usernames[rand.Intn(len(Usernames))],
-			Email:        fmt.Sprintf("%s@example.com", Usernames[rand.Intn(len(Usernames))]),
+			Username:     fmt.Sprintf("%s_%d", baseUsername, i),
+			Email:        fmt.Sprintf("%s_%d@example.com", baseUsername, i),
 			PasswordHash: "password123",
 		}
 	}

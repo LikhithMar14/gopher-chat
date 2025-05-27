@@ -1,6 +1,6 @@
 package config
 
-import "github.com/LikhithMar14/gopher-chat/internal/env"
+import "github.com/LikhithMar14/gopher-chat/internal/utils/env"
 
 type Config struct {
 	Addr string

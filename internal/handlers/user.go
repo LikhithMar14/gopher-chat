@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/errors"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
