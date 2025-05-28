@@ -52,3 +52,32 @@ type CreateUserRequest struct {
 type CreateCommentRequest struct {
 	Content string `json:"content" validate:"required,min=1,max=500"`
 }
+
+type FollowUnfollowRequest struct {
+	UserID int64 `json:"user_id"`
+}
+
+// Feed-related models
+type FeedItem struct {
+	Post   *Post `json:"post"`
+	Author *User `json:"author"`
+}
+
+type FeedResponse struct {
+	Items      []*FeedItem     `json:"items"`
+	Pagination *PaginationInfo `json:"pagination"`
+}
+
+type PaginationInfo struct {
+	CurrentPage  int   `json:"current_page"`
+	ItemsPerPage int   `json:"items_per_page"`
+	TotalItems   int64 `json:"total_items"`
+	TotalPages   int   `json:"total_pages"`
+	HasNext      bool  `json:"has_next"`
+	HasPrevious  bool  `json:"has_previous"`
+}
+
+type FeedRequest struct {
+	Page     int `json:"page" validate:"min=1"`
+	PageSize int `json:"page_size" validate:"min=1,max=50"`
+}

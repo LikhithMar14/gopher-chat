@@ -36,8 +36,8 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-ctx = utils.SetUserID(ctx, int64(1))
-
+	ctx = utils.SetUserID(ctx, int64(668))
+	//will give internal server error if the userid is not correct
 
 	comment, err := h.commentService.CreateComment(ctx, &req)
 	if err != nil {

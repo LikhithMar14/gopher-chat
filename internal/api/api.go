@@ -12,23 +12,30 @@ import (
 )
 
 type Application struct {
-	Config      config.Config
-	Store       store.Storage
-	UserService *service.UserService
-	PostService *service.PostService
+	Config         config.Config
+	Store          store.Storage
+	UserService    *service.UserService
+	PostService    *service.PostService
 	CommentService *service.CommentService
+	FollowService  *service.FollowService
+	FeedService    *service.FeedService
 }
 
 func NewApplication(cfg config.Config, store store.Storage) *Application {
 	userService := service.NewUserService(store)
 	postService := service.NewPostService(store)
 	commentService := service.NewCommentService(store)
+	followService := service.NewFollowService(store)
+	feedService := service.NewFeedService(store)
+
 	return &Application{
-		Config:      cfg,
-		Store:       store,
-		UserService: userService,
-		PostService: postService,
+		Config:         cfg,
+		Store:          store,
+		UserService:    userService,
+		PostService:    postService,
 		CommentService: commentService,
+		FollowService:  followService,
+		FeedService:    feedService,
 	}
 }
 
@@ -38,7 +45,7 @@ func (app *Application) Serve(mux *chi.Mux) error {
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  time.Minute,	
+		IdleTimeout:  time.Minute,
 	}
 
 	log.Printf("Starting server on %s", app.Config.Addr)

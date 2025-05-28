@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/LikhithMar14/gopher-chat/internal/models"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 )
 
 type UserStorage struct {
@@ -62,4 +63,43 @@ func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, 
 		}
 	}
 	return &user, nil
+}
+
+func (s *UserStorage) FollowUser(ctx context.Context, userID int64, followerID int64) error {
+	query := `INSERT INTO followers (user_id, follower_id) VALUES ($1, $2)`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := s.db.ExecContext(ctx, query, userID, followerID)
+	if err != nil {
+		// Check for duplicate key constraint violation (PostgreSQL specific)
+		if err.Error() == "pq: duplicate key value violates unique constraint \"followers_pkey\"" ||
+			err.Error() == "UNIQUE constraint failed: followers.user_id, followers.follower_id" {
+			return apperrors.ErrConflict
+		}
+		return err
+	}
+	return nil
+}
+
+func (s *UserStorage) UnfollowUser(ctx context.Context, userID int64, followerID int64) error {
+	query := `DELETE FROM followers WHERE user_id = $1 AND follower_id = $2`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	result, err := s.db.ExecContext(ctx, query, userID, followerID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
 }

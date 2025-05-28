@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-
+	"log"
 	"net/http"
 
 	"errors"
@@ -26,6 +26,7 @@ func NewPostHandler(postService *service.PostService, commentService *service.Co
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	log.Println("Inside Create Post Handler")
 	var req models.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.HandleValidationError(w, err)
@@ -36,9 +37,10 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set user ID in context (hardcoded for demo - would come from auth middleware in real app)
 	ctx := r.Context()
-	ctx = utils.SetUserID(ctx, int64(1))
+	ctx = utils.SetUserID(ctx, int64(688))
+	// will return internal server error if user id is not valid
+
 	post, err := h.postService.CreatePost(ctx, req)
 	if err != nil {
 		utils.HandleInternalError(w, err)

@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+
 	"net/http"
 	"time"
 
@@ -16,25 +16,25 @@ import (
 
 func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			id, err := utils.ReadIDParam(r)
+		id, err := utils.ReadIDParam(r)
 
-			if err != nil {
-				utils.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-				return
+		if err != nil {
+			utils.HandleValidationError(w, errors.New("invalid input format"))
+			return
+		}
+		ctx := r.Context()
+		post, err := app.PostService.GetPostByID(ctx, id)
+		if err != nil {
+			switch {
+			case errors.Is(err, apperrors.ErrPostNotFound):
+				utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			default:
+				utils.WriteErrorResponse(w, http.StatusInternalServerError, "Internal server error")
 			}
-			ctx := r.Context()
-			post, err := app.PostService.GetPostByID(ctx, id)
-			if err != nil {
-				switch {
-				case errors.Is(err, apperrors.ErrPostNotFound):
-					utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-				default:
-					utils.WriteErrorResponse(w, http.StatusInternalServerError, "Internal server error")
-				}
-				return
-			}
-			ctx = context.WithValue(ctx, utils.PostIDKey, post)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+		ctx = context.WithValue(ctx, utils.PostIDKey, post)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 func (app *Application) userContextMiddleware(next http.Handler) http.Handler {
@@ -42,24 +42,24 @@ func (app *Application) userContextMiddleware(next http.Handler) http.Handler {
 		ctx := r.Context()
 		id, err := utils.ReadIDParam(r)
 		if err != nil {
-			log.Println("ERROR IN USER CONTEXT MIDDLEWARE", err)
-			utils.HandleValidationError(w, err)
+			utils.HandleValidationError(w, errors.New("invalid input format"))
 			return
 		}
 
 		user, err := app.UserService.GetUserByID(ctx, id)
 
 		if err != nil {
+			//will give internal server error if the userid is not correct
 			utils.HandleInternalError(w, err)
 			return
 		}
-	
+
 		ctx = context.WithValue(ctx, utils.UserIDKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 func (app *Application) Routes() *chi.Mux {
-	r := chi.NewRouter()	
+	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -71,6 +71,8 @@ func (app *Application) Routes() *chi.Mux {
 	userHandler := handlers.NewUserHandler(app.UserService)
 	postHandler := handlers.NewPostHandler(app.PostService, app.CommentService)
 	commentHandler := handlers.NewCommentHandler(app.CommentService, app.PostService)
+	followHandler := handlers.NewFollowHandler(app.FollowService, app.UserService)
+	feedHandler := handlers.NewFeedHandler(app.UserService, app.PostService, app.FeedService)
 
 	r.Route("/v1", func(r chi.Router) {
 
@@ -96,10 +98,13 @@ func (app *Application) Routes() *chi.Mux {
 			r.Route("/{id}", func(r chi.Router) {
 				r.Use(app.userContextMiddleware)
 				r.Get("/", userHandler.GetUserByID)
-				r.Put("/follow", userHandler.FollowUser)
-				r.Put("/unfollow", userHandler.UnfollowUser)
+				r.Put("/follow", followHandler.FollowUser)
+				r.Put("/unfollow", followHandler.UnfollowUser)
 			})
-			
+			r.Route("/feed", func(r chi.Router) {
+					r.Get("/", feedHandler.GetFeed)
+			})
+
 		})
 	})
 

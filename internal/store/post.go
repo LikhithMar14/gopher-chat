@@ -6,11 +6,10 @@ import (
 	"errors"
 	"time"
 
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
+	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/lib/pq"
 )
-
 
 type PostStorage struct {
 	db *sql.DB
@@ -163,4 +162,72 @@ func (s *PostStorage) UpdateWithOptimisticLocking(ctx context.Context, id int64,
 	}
 
 	return &post, nil
+}
+
+// GetFeed retrieves posts from users that the given user follows, with pagination
+func (s *PostStorage) GetFeed(ctx context.Context, userID int64, page, pageSize int) ([]*models.FeedItem, int64, error) {
+	offset := (page - 1) * pageSize
+
+	// Query to get posts from followed users with author information
+	query := `
+		SELECT 
+			p.id, p.user_id, p.title, p.content, p.tags, p.created_at, p.updated_at, p.version,
+			u.id, u.username, u.email, u.created_at, u.updated_at
+		FROM posts p
+		INNER JOIN users u ON p.user_id = u.id
+		INNER JOIN followers f ON p.user_id = f.user_id
+		WHERE f.follower_id = $1
+		ORDER BY p.created_at DESC
+		LIMIT $2 OFFSET $3
+	`
+
+	// Count query for pagination
+	countQuery := `
+		SELECT COUNT(*)
+		FROM posts p
+		INNER JOIN followers f ON p.user_id = f.user_id
+		WHERE f.follower_id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	// Get total count for pagination
+	var totalCount int64
+	if err := s.db.QueryRowContext(ctx, countQuery, userID).Scan(&totalCount); err != nil {
+		return nil, 0, err
+	}
+
+	// Get feed items
+	rows, err := s.db.QueryContext(ctx, query, userID, pageSize, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var feedItems []*models.FeedItem
+	for rows.Next() {
+		var post models.Post
+		var author models.User
+
+		err := rows.Scan(
+			&post.ID, &post.UserID, &post.Title, &post.Content, pq.Array(&post.Tags),
+			&post.CreatedAt, &post.UpdatedAt, &post.Version,
+			&author.ID, &author.Username, &author.Email, &author.CreatedAt, &author.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		feedItems = append(feedItems, &models.FeedItem{
+			Post:   &post,
+			Author: &author,
+		})
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return feedItems, totalCount, nil
 }

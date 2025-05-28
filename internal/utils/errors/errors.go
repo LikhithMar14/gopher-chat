@@ -24,6 +24,8 @@ var (
 	ErrUsernameTaken      = errors.New("username already taken")
 	ErrEmailTaken         = errors.New("email already taken")
 	ErrPasswordTooShort   = errors.New("password must be at least 6 characters")
+	ErrAlreadyFollowing   = errors.New("already following this user")
+	ErrNotFollowing       = errors.New("not following this user")
 )
 
 var (
