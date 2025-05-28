@@ -10,6 +10,29 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 )
 
+const Version = "1.0.0"
+
+
+//	@title			Gopher Chat API
+//	@version		1.0.0
+//	@description	This is a sample server Gopher Chat API.
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@host		localhost:8080
+//	@BasePath	/v1
+
+//	@securityDefinitions.apiKey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Description for the API Key
+
 
 func main() {
 
@@ -33,7 +56,7 @@ func main() {
 
 	storage := store.NewStorage(database)
 
-	app := api.NewApplication(cfg, storage)
+	app := api.NewApplication(cfg, storage, Version)
 
 
 	mux := app.Routes()

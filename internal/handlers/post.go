@@ -25,6 +25,19 @@ func NewPostHandler(postService *service.PostService, commentService *service.Co
 	}
 }
 
+// CreatePost godoc
+//
+//	@Summary		Create a new post
+//	@Description	Create a new post with title, content, and tags
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			post	body		models.CreatePostRequest	true	"Post creation request"
+//	@Success		201		{object}	map[string]interface{}		"Post created successfully"
+//	@Failure		400		{object}	map[string]interface{}		"Validation error"
+//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts [post]
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	log.Println("Inside Create Post Handler")
 	var req models.CreatePostRequest
@@ -53,10 +66,22 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusCreated, data)
 }
 
+// GetPostByID godoc
+//
+//	@Summary		Get post by ID
+//	@Description	Retrieve a specific post by its ID, including comments
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int						true	"Post ID"
+//	@Success		200	{object}	map[string]interface{}	"Post retrieved successfully"
+//	@Failure		404	{object}	map[string]interface{}	"Post not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Router			/posts/{id} [get]
 func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	post, ok := h.postService.GetPostFromContext(ctx)
-	
+
 	if !ok {
 		utils.WriteErrorResponse(w, http.StatusNotFound, "Post not found")
 		return
@@ -74,6 +99,19 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
+// DeletePost godoc
+//
+//	@Summary		Delete a post
+//	@Description	Delete a post by its ID
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int						true	"Post ID"
+//	@Success		200	{object}	map[string]interface{}	"Post deleted successfully"
+//	@Failure		404	{object}	map[string]interface{}	"Post not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{id} [delete]
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ReadIDParam(r)
 	if err != nil {
@@ -100,6 +138,22 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
+// UpdatePost godoc
+//
+//	@Summary		Update a post
+//	@Description	Update an existing post's title, content, or tags
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int							true	"Post ID"
+//	@Param			post	body		models.UpdatePostRequest	true	"Post update request"
+//	@Success		200		{object}	map[string]interface{}		"Post updated successfully"
+//	@Failure		400		{object}	map[string]interface{}		"Validation error"
+//	@Failure		404		{object}	map[string]interface{}		"Post not found"
+//	@Failure		409		{object}	map[string]interface{}		"Version conflict"
+//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{id} [patch]
 func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var req models.UpdatePostRequest
 

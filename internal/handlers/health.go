@@ -19,6 +19,15 @@ func NewHealthHandler(cfg config.Config) *HealthHandler {
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		Health check
+//	@Description	Get the health status of the API
+//	@Tags			health
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Router			/health [get]
 func (h *HealthHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"status":      "ok",

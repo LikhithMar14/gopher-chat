@@ -1,1 +1,0 @@
-<!-- DOCS FOR SWAGGER -->

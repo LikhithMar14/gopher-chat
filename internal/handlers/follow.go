@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"log"
-	
+
 	"net/http"
 
 	"github.com/LikhithMar14/gopher-chat/internal/service"
@@ -11,14 +11,27 @@ import (
 )
 
 type FollowHandler struct {
-	followService *service.FollowService		
+	followService *service.FollowService
 	userService   *service.UserService
 }
 
 func NewFollowHandler(followService *service.FollowService, userService *service.UserService) *FollowHandler {
 	return &FollowHandler{followService: followService, userService: userService}
-}	
+}
 
+// FollowUser godoc
+//
+//	@Summary		Follow a user
+//	@Description	Follow another user by their ID
+//	@Tags			follow
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"User ID to follow"
+//	@Success		204	"User followed successfully"
+//	@Failure		404	{object}	map[string]interface{}	"User not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/users/{id}/follow [put]
 func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, ok := h.userService.GetUserFromContext(ctx)
@@ -30,8 +43,6 @@ func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	userID := user.ID
 	currentUserID := 667
 
-
-
 	err := h.followService.FollowUser(ctx, int64(currentUserID), int64(userID))
 	log.Println("err in follow handler", err)
 	if err != nil {
@@ -40,6 +51,20 @@ func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.WriteSuccessResponse(w, http.StatusNoContent, nil)
 }
+
+// UnfollowUser godoc
+//
+//	@Summary		Unfollow a user
+//	@Description	Unfollow a user by their ID
+//	@Tags			follow
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"User ID to unfollow"
+//	@Success		204	"User unfollowed successfully"
+//	@Failure		404	{object}	map[string]interface{}	"User not found"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/users/{id}/unfollow [put]
 func (h *FollowHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, ok := h.userService.GetUserFromContext(ctx)

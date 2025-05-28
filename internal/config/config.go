@@ -6,6 +6,7 @@ type Config struct {
 	Addr string
 	DB   DBConfig
 	Env  string
+	APIURL string
 }
 
 type DBConfig struct {
@@ -25,5 +26,6 @@ func Load() Config {
 			MaxLifetime:  env.GetString("DB_MAX_LIFETIME", "15m"),
 		},
 		Env: env.GetString("ENV", "development"),
+		APIURL: env.GetString("API_URL", "http://localhost:8080"),
 	}
 }

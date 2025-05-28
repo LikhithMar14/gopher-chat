@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-
 	"net/http"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
@@ -75,6 +75,7 @@ func (app *Application) Routes() *chi.Mux {
 	feedHandler := handlers.NewFeedHandler(app.UserService, app.PostService, app.FeedService)
 
 	r.Route("/v1", func(r chi.Router) {
+		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/v1/swagger/doc.json")))
 
 		r.Get("/health", healthHandler.Handle)
 
@@ -102,7 +103,7 @@ func (app *Application) Routes() *chi.Mux {
 				r.Put("/unfollow", followHandler.UnfollowUser)
 			})
 			r.Route("/feed", func(r chi.Router) {
-					r.Get("/", feedHandler.GetFeed)
+				r.Get("/", feedHandler.GetFeed)
 			})
 
 		})

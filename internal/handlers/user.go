@@ -21,6 +21,16 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 	}
 }
 
+// GetUsers godoc
+//
+//	@Summary		Get all users
+//	@Description	Retrieve a list of all users in the system
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}	"success response with users array and count"
+//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Router			/users [get]
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -38,6 +48,18 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
+// CreateUser godoc
+//
+//	@Summary		Create a new user
+//	@Description	Create a new user with the provided information
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		models.CreateUserRequest	true	"User creation request"
+//	@Success		201		{object}	map[string]interface{}		"User created successfully"
+//	@Failure		400		{object}	map[string]interface{}		"Validation error"
+//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Router			/users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -66,6 +88,21 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusCreated, data)
 }
 
+// GetUserByID godoc
+//
+//	@Summary		Get user by ID
+//	@Description	Get user by ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	models.User
+//	@Failure		400	{object}	map[string]interface{}
+//	@Failure		404	{object}	map[string]interface{}
+//	@Failure		500	{object}	map[string]interface{}
+//	@Failure		401	{object}	map[string]interface{}
+//	@Security		ApiKeyAuth
+//	@Router			/users/{id} [get]
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, ok := h.userService.GetUserFromContext(ctx)
@@ -137,7 +174,6 @@ func (h *UserHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if trying to unfollow themselves
 	if user.ID == req.UserID {
 		utils.WriteErrorResponse(w, http.StatusBadRequest, "Cannot unfollow yourself")
 		return
