@@ -14,3 +14,4 @@ type AuthStorage struct {
 func (s *AuthStorage) Create(ctx context.Context, user *models.User) error {
 	return nil
 }
+

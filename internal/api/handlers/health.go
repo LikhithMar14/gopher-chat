@@ -26,7 +26,7 @@ func NewHealthHandler(cfg config.Config) *HealthHandler {
 //	@Tags			health
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	map[string]interface{}
+//	@Success		200	{object}	utils.StandardResponse	"Health check successful"
 //	@Router			/health [get]
 func (h *HealthHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{

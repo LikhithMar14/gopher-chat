@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// StandardResponse represents the standard API response format
 type StandardResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -13,7 +12,6 @@ type StandardResponse struct {
 	Status  int         `json:"status"`
 }
 
-// WriteSuccessResponse writes a standardized success response
 func WriteSuccessResponse(w http.ResponseWriter, statusCode int, data interface{}) error {
 	response := StandardResponse{
 		Success: true,
@@ -27,7 +25,6 @@ func WriteSuccessResponse(w http.ResponseWriter, statusCode int, data interface{
 	return json.NewEncoder(w).Encode(response)
 }
 
-// WriteErrorResponse writes a standardized error response
 func WriteErrorResponse(w http.ResponseWriter, statusCode int, message string) error {
 	response := StandardResponse{
 		Success: false,
@@ -41,12 +38,11 @@ func WriteErrorResponse(w http.ResponseWriter, statusCode int, message string) e
 	return json.NewEncoder(w).Encode(response)
 }
 
-// HandleValidationError handles validation errors consistently
 func HandleValidationError(w http.ResponseWriter, err error) error {
 	return WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 }
 
-// HandleInternalError handles internal server errors consistently
+
 func HandleInternalError(w http.ResponseWriter, err error) error {
 	return WriteErrorResponse(w, http.StatusInternalServerError, "Internal server error")
 }

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/LikhithMar14/gopher-chat/internal/handlers"
+	"github.com/LikhithMar14/gopher-chat/internal/api/handlers"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/go-chi/chi/v5"

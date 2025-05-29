@@ -6,11 +6,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 type Password struct {
 	text *string
 	hash []byte
-}	
+}
 
 func NewPassword(plaintext string) (*Password, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), bcrypt.DefaultCost)
@@ -107,7 +106,6 @@ type CreateCommentRequest struct {
 type FollowUnfollowRequest struct {
 	UserID int64 `json:"user_id"`
 }
-
 
 type FeedItem struct {
 	Post   *Post `json:"post"`

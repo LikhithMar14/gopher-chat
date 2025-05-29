@@ -24,6 +24,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/register": {
+            "post": {
+                "description": "Registers a new user with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Registers a user",
+                "parameters": [
+                    {
+                        "description": "User registration details",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Get the health status of the API",
@@ -39,10 +85,9 @@ const docTemplate = `{
                 "summary": "Health check",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Health check successful",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -81,22 +126,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Post created successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -128,22 +170,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Post retrieved successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Post not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -178,22 +217,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Post deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Post not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -237,36 +273,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Post updated successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Post not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "409": {
                         "description": "Version conflict",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -298,22 +329,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Comments retrieved successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Post not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -357,36 +385,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Comment created successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Post not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -409,15 +432,13 @@ const docTemplate = `{
                     "200": {
                         "description": "success response with users array and count",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -441,7 +462,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.CreateUserRequest"
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest"
                         }
                     }
                 ],
@@ -449,28 +470,25 @@ const docTemplate = `{
                     "201": {
                         "description": "User created successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "400": {
                         "description": "Validation error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
             }
         },
-        "/users/feed": {
+        "/users/me/feed": {
             "get": {
                 "security": [
                     {
@@ -512,8 +530,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -550,48 +567,44 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.User"
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
             }
         },
         "/users/{id}/follow": {
-            "put": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Follow another user by their ID",
+                "description": "Follow another user to see their posts in your feed",
                 "consumes": [
                     "application/json"
                 ],
@@ -599,7 +612,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "follow"
+                    "users"
                 ],
                 "summary": "Follow a user",
                 "parameters": [
@@ -612,34 +625,33 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "User followed successfully"
+                    "200": {
+                        "description": "User followed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
-            }
-        },
-        "/users/{id}/unfollow": {
-            "put": {
+            },
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Unfollow a user by their ID",
+                "description": "Unfollow a user to stop seeing their posts in your feed",
                 "consumes": [
                     "application/json"
                 ],
@@ -647,7 +659,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "follow"
+                    "users"
                 ],
                 "summary": "Unfollow a user",
                 "parameters": [
@@ -660,21 +672,22 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "User unfollowed successfully"
+                    "200": {
+                        "description": "User unfollowed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     }
                 }
@@ -746,20 +759,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 3
-                }
-            }
-        },
-        "github_com_LikhithMar14_gopher-chat_internal_models.CreateUserRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -849,6 +848,28 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
+                }
+            }
+        },
         "github_com_LikhithMar14_gopher-chat_internal_models.UpdatePostRequest": {
             "type": "object",
             "properties": {
@@ -886,6 +907,21 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         }

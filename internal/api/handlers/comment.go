@@ -32,11 +32,11 @@ func NewCommentHandler(commentService *service.CommentService, postService *serv
 //	@Produce		json
 //	@Param			id		path		int							true	"Post ID"
 //	@Param			comment	body		models.CreateCommentRequest	true	"Comment creation request"
-//	@Success		201		{object}	map[string]interface{}		"Comment created successfully"
-//	@Failure		400		{object}	map[string]interface{}		"Validation error"
-//	@Failure		401		{object}	map[string]interface{}		"Unauthorized"
-//	@Failure		404		{object}	map[string]interface{}		"Post not found"
-//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Success		201		{object}	utils.StandardResponse		"Comment created successfully"
+//	@Failure		400		{object}	utils.StandardResponse		"Validation error"
+//	@Failure		401		{object}	utils.StandardResponse		"Unauthorized"
+//	@Failure		404		{object}	utils.StandardResponse		"Post not found"
+//	@Failure		500		{object}	utils.StandardResponse		"Internal server error"
 //	@Security		ApiKeyAuth
 //	@Router			/posts/{id}/comments [post]
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
@@ -82,9 +82,9 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int						true	"Post ID"
-//	@Success		200	{object}	map[string]interface{}	"Comments retrieved successfully"
-//	@Failure		404	{object}	map[string]interface{}	"Post not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Success		200	{object}	utils.StandardResponse	"Comments retrieved successfully"
+//	@Failure		404	{object}	utils.StandardResponse	"Post not found"
+//	@Failure		500	{object}	utils.StandardResponse	"Internal server error"
 //	@Router			/posts/{id}/comments [get]
 func (h *CommentHandler) GetCommentsByPostID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/LikhithMar14/gopher-chat/internal/config"
-	"github.com/LikhithMar14/gopher-chat/internal/db"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
+	db "github.com/LikhithMar14/gopher-chat/internal/store/database"
 	"github.com/LikhithMar14/gopher-chat/internal/utils/env"
 	"go.uber.org/zap"
 )

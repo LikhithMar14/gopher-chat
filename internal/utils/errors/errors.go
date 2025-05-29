@@ -46,7 +46,7 @@ var (
 	ErrCommentTooLong         = errors.New("comment content is too long")
 )
 
-type AppError struct {
+type AppError struct {	
 	Err        error
 	StatusCode int
 	Message    string

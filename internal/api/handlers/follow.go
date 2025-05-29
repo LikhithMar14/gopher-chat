@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-
 	"net/http"
 
 	"github.com/LikhithMar14/gopher-chat/internal/service"
@@ -27,16 +26,16 @@ func NewFollowHandler(followService *service.FollowService, userService *service
 // FollowUser godoc
 //
 //	@Summary		Follow a user
-//	@Description	Follow another user by their ID
-//	@Tags			follow
+//	@Description	Follow another user to see their posts in your feed
+//	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path	int	true	"User ID to follow"
-//	@Success		204	"User followed successfully"
-//	@Failure		404	{object}	map[string]interface{}	"User not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Param			id	path		int						true	"User ID to follow"
+//	@Success		200	{object}	utils.StandardResponse	"User followed successfully"
+//	@Failure		404	{object}	utils.StandardResponse	"User not found"
+//	@Failure		500	{object}	utils.StandardResponse	"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/users/{id}/follow [put]
+//	@Router			/users/{id}/follow [post]
 func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, ok := h.userService.GetUserFromContext(ctx)
@@ -54,22 +53,26 @@ func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 		utils.HandleInternalError(w, err)
 		return
 	}
-	utils.WriteSuccessResponse(w, http.StatusNoContent, nil)
+
+	data := map[string]interface{}{
+		"message": "User followed successfully",
+	}
+	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
 // UnfollowUser godoc
 //
 //	@Summary		Unfollow a user
-//	@Description	Unfollow a user by their ID
-//	@Tags			follow
+//	@Description	Unfollow a user to stop seeing their posts in your feed
+//	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path	int	true	"User ID to unfollow"
-//	@Success		204	"User unfollowed successfully"
-//	@Failure		404	{object}	map[string]interface{}	"User not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Param			id	path		int						true	"User ID to unfollow"
+//	@Success		200	{object}	utils.StandardResponse	"User unfollowed successfully"
+//	@Failure		404	{object}	utils.StandardResponse	"User not found"
+//	@Failure		500	{object}	utils.StandardResponse	"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/users/{id}/unfollow [put]
+//	@Router			/users/{id}/follow [delete]
 func (h *FollowHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, ok := h.userService.GetUserFromContext(ctx)
@@ -86,5 +89,9 @@ func (h *FollowHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		utils.HandleInternalError(w, err)
 		return
 	}
-	utils.WriteSuccessResponse(w, http.StatusNoContent, nil)
+
+	data := map[string]interface{}{
+		"message": "User unfollowed successfully",
+	}
+	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }

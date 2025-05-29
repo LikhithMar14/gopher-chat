@@ -28,8 +28,8 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	map[string]interface{}	"success response with users array and count"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Success		200	{object}	utils.StandardResponse	"success response with users array and count"
+//	@Failure		500	{object}	utils.StandardResponse	"Internal server error"
 //	@Router			/users [get]
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -56,9 +56,9 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			user	body		models.RegisterUserRequest	true	"User creation request"
-//	@Success		201		{object}	map[string]interface{}		"User created successfully"
-//	@Failure		400		{object}	map[string]interface{}		"Validation error"
-//	@Failure		500		{object}	map[string]interface{}		"Internal server error"
+//	@Success		201		{object}	utils.StandardResponse		"User created successfully"
+//	@Failure		400		{object}	utils.StandardResponse		"Validation error"
+//	@Failure		500		{object}	utils.StandardResponse		"Internal server error"
 //	@Router			/users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -96,11 +96,11 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"User ID"
-//	@Success		200	{object}	models.User
-//	@Failure		400	{object}	map[string]interface{}
-//	@Failure		404	{object}	map[string]interface{}
-//	@Failure		500	{object}	map[string]interface{}
-//	@Failure		401	{object}	map[string]interface{}
+//	@Success		200	{object}	utils.StandardResponse
+//	@Failure		400	{object}	utils.StandardResponse
+//	@Failure		404	{object}	utils.StandardResponse
+//	@Failure		500	{object}	utils.StandardResponse
+//	@Failure		401	{object}	utils.StandardResponse
 //	@Security		ApiKeyAuth
 //	@Router			/users/{id} [get]
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {

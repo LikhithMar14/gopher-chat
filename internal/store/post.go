@@ -164,7 +164,7 @@ func (s *PostStorage) UpdateWithOptimisticLocking(ctx context.Context, id int64,
 	return &post, nil
 }
 
-// GetFeed retrieves posts from users that the given user follows, with pagination
+
 func (s *PostStorage) GetFeed(ctx context.Context, userID int64, page, pageSize int) ([]*models.FeedItem, int64, error) {
 	offset := (page - 1) * pageSize
 

@@ -33,9 +33,9 @@ func NewFeedHandler(userService *service.UserService, postService *service.PostS
 //	@Param			page		query		int						false	"Page number (default: 1)"
 //	@Param			page_size	query		int						false	"Items per page (default: 10, max: 50)"
 //	@Success		200			{object}	models.FeedResponse		"Feed retrieved successfully"
-//	@Failure		500			{object}	map[string]interface{}	"Internal server error"
+//	@Failure		500			{object}	utils.StandardResponse	"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/users/feed [get]
+//	@Router			/users/me/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

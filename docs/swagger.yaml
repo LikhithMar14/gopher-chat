@@ -47,15 +47,6 @@ definitions:
     - tags
     - title
     type: object
-  github_com_LikhithMar14_gopher-chat_internal_models.CreateUserRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    type: object
   github_com_LikhithMar14_gopher-chat_internal_models.FeedItem:
     properties:
       author:
@@ -112,6 +103,22 @@ definitions:
       version:
         type: integer
     type: object
+  github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
   github_com_LikhithMar14_gopher-chat_internal_models.UpdatePostRequest:
     properties:
       content:
@@ -139,6 +146,16 @@ definitions:
       username:
         type: string
     type: object
+  github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -153,6 +170,36 @@ info:
   title: Gopher Chat API
   version: 1.0.0
 paths:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided information
+      parameters:
+      - description: User registration details
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "400":
+          description: Invalid request or validation error
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+      summary: Registers a user
+      tags:
+      - auth
   /health:
     get:
       consumes:
@@ -162,10 +209,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Health check successful
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Health check
       tags:
       - health
@@ -187,18 +233,15 @@ paths:
         "201":
           description: Post created successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Create a new post
@@ -221,18 +264,15 @@ paths:
         "200":
           description: Post deleted successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Post not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Delete a post
@@ -254,18 +294,15 @@ paths:
         "200":
           description: Post retrieved successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Post not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Get post by ID
       tags:
       - posts
@@ -291,28 +328,23 @@ paths:
         "200":
           description: Post updated successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Post not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "409":
           description: Version conflict
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Update a post
@@ -335,18 +367,15 @@ paths:
         "200":
           description: Comments retrieved successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Post not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Get comments for a post
       tags:
       - comments
@@ -372,28 +401,23 @@ paths:
         "201":
           description: Comment created successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Post not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Create a comment on a post
@@ -410,13 +434,11 @@ paths:
         "200":
           description: success response with users array and count
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Get all users
       tags:
       - users
@@ -430,25 +452,22 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.CreateUserRequest'
+          $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: User created successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "400":
           description: Validation error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Create a new user
       tags:
       - users
@@ -469,68 +488,33 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.User'
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Get user by ID
       tags:
       - users
   /users/{id}/follow:
-    put:
+    delete:
       consumes:
       - application/json
-      description: Follow another user by their ID
-      parameters:
-      - description: User ID to follow
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: User followed successfully
-        "404":
-          description: User not found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Follow a user
-      tags:
-      - follow
-  /users/{id}/unfollow:
-    put:
-      consumes:
-      - application/json
-      description: Unfollow a user by their ID
+      description: Unfollow a user to stop seeing their posts in your feed
       parameters:
       - description: User ID to unfollow
         in: path
@@ -540,24 +524,54 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: User unfollowed successfully
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "404":
           description: User not found
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Unfollow a user
       tags:
-      - follow
-  /users/feed:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Follow another user to see their posts in your feed
+      parameters:
+      - description: User ID to follow
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User followed successfully
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Follow a user
+      tags:
+      - users
+  /users/me/feed:
     get:
       consumes:
       - application/json
@@ -581,8 +595,7 @@ paths:
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       security:
       - ApiKeyAuth: []
       summary: Get user feed
