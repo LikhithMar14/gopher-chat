@@ -37,11 +37,11 @@ func main() {
 
 	storage := store.NewStorage(database)
 
-	userService := service.NewUserService(storage)
 	postService := service.NewPostService(storage)
 	commentService := service.NewCommentService(storage)
+	authService := service.NewAuthService(storage, cfg.Mail.Exp)
 
-	err = db.Seed(database, userService, postService, commentService, logger)
+	err = db.Seed(database, authService, postService, commentService, logger)
 	if err != nil {
 		logger.Fatal("Failed to seed database", zap.Error(err))
 	}

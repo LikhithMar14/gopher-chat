@@ -18,14 +18,17 @@ var (
 )
 
 var (
-	ErrUserNotFound       = errors.New("user not found")
-	ErrUserAlreadyExists  = errors.New("user already exists")
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrUsernameTaken      = errors.New("username already taken")
-	ErrEmailTaken         = errors.New("email already taken")
-	ErrPasswordTooShort   = errors.New("password must be at least 6 characters")
-	ErrAlreadyFollowing   = errors.New("already following this user")
-	ErrNotFollowing       = errors.New("not following this user")
+	ErrUserNotFound         = errors.New("user not found")
+	ErrUserAlreadyExists    = errors.New("user already exists")
+	ErrInvalidCredentials   = errors.New("invalid credentials")
+	ErrUsernameTaken        = errors.New("username already taken")
+	ErrEmailTaken           = errors.New("email already taken")
+	ErrPasswordTooShort     = errors.New("password must be at least 6 characters")
+	ErrAlreadyFollowing     = errors.New("already following this user")
+	ErrNotFollowing         = errors.New("not following this user")
+	ErrInvalidToken         = errors.New("invalid or malformed token")
+	ErrTokenExpired         = errors.New("token has expired")
+	ErrUserAlreadyActivated = errors.New("user is already activated")
 )
 
 var (
@@ -46,7 +49,7 @@ var (
 	ErrCommentTooLong         = errors.New("comment content is too long")
 )
 
-type AppError struct {	
+type AppError struct {
 	Err        error
 	StatusCode int
 	Message    string

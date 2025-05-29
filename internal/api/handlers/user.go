@@ -48,45 +48,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	utils.WriteSuccessResponse(w, http.StatusOK, data)
 }
 
-// CreateUser godoc
-//
-//	@Summary		Create a new user
-//	@Description	Create a new user with the provided information
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body		models.RegisterUserRequest	true	"User creation request"
-//	@Success		201		{object}	utils.StandardResponse		"User created successfully"
-//	@Failure		400		{object}	utils.StandardResponse		"Validation error"
-//	@Failure		500		{object}	utils.StandardResponse		"Internal server error"
-//	@Router			/users [post]
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 
-	var req models.RegisterUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.HandleValidationError(w, err)
-		return
-	}
-
-	user, err := h.userService.CreateUser(ctx, req)
-	if err != nil {
-		switch {
-		case errors.Is(err, apperrors.ErrValidation):
-			utils.HandleValidationError(w, err)
-		default:
-			utils.HandleInternalError(w, err)
-		}
-		return
-	}
-
-	data := map[string]interface{}{
-		"user":    user,
-		"message": "User created successfully",
-	}
-
-	utils.WriteSuccessResponse(w, http.StatusCreated, data)
-}
 
 // GetUserByID godoc
 //

@@ -31,7 +31,7 @@ func NewApplication(cfg config.Config, store store.Storage, version string, logg
 	commentService := service.NewCommentService(store)
 	followService := service.NewFollowService(store)
 	feedService := service.NewFeedService(store)
-	authService := service.NewAuthService(store)
+	authService := service.NewAuthService(store, cfg.Mail.Exp)
 
 	return &Application{
 		Config:         cfg,
@@ -43,7 +43,7 @@ func NewApplication(cfg config.Config, store store.Storage, version string, logg
 		FeedService:    feedService,
 		AuthService:    authService,
 		Version:        version,
-		Logger:         logger,	
+		Logger:         logger,
 	}
 }
 
@@ -61,7 +61,7 @@ func (app *Application) Serve(mux *chi.Mux) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	app.Logger.Infow("Server has started",  "addr", app.Config.Addr, "env",app.Config.Env, "version", app.Version)
+	app.Logger.Infow("Server has started", "addr", app.Config.Addr, "env", app.Config.Env, "version", app.Version)
 
 	if err := srv.ListenAndServe(); err != nil {
 		app.Logger.Errorw("Failed to start server", "error", err)

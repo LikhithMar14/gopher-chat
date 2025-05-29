@@ -61,6 +61,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }
                     },
+                    "409": {
+                        "description": "Username or email already exists",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -431,50 +437,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "success response with users array and count",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new user with the provided information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Create a new user",
-                "parameters": [
-                    {
-                        "description": "User creation request",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
                         }

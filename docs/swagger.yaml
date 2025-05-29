@@ -193,6 +193,10 @@ paths:
           description: Invalid request or validation error
           schema:
             $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "409":
+          description: Username or email already exists
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
         "500":
           description: Internal server error
           schema:
@@ -440,35 +444,6 @@ paths:
           schema:
             $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
       summary: Get all users
-      tags:
-      - users
-    post:
-      consumes:
-      - application/json
-      description: Create a new user with the provided information
-      parameters:
-      - description: User creation request
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_models.RegisterUserRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User created successfully
-          schema:
-            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
-      summary: Create a new user
       tags:
       - users
   /users/{id}:

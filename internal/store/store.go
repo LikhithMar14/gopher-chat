@@ -33,7 +33,6 @@ type PostRepository interface {
 }
 
 type UserRepository interface {
-	Create(context.Context, *models.User) error
 	GetAll(context.Context) ([]models.User, error)
 	GetByID(context.Context, int64) (*models.User, error)
 	FollowUser(context.Context, int64, int64) error
@@ -53,7 +52,11 @@ type FollowRepository interface {
 }
 
 type AuthRepository interface {
+	CreateAndInvite(context.Context, *models.User, string, time.Duration) error
 	Create(context.Context, *models.User) error
+	GetUserFromInvitationToken(context.Context, string) (*models.User, error)
+	ActivateUser(context.Context, int64) error
+	DeleteInvitationToken(context.Context, string) error
 }
 
 func NewStorage(db *sql.DB) Storage {
@@ -62,5 +65,21 @@ func NewStorage(db *sql.DB) Storage {
 		User:    &UserStorage{db},
 		Comment: &CommentStorage{db},
 		Follow:  &FollowStorage{db},
+		Auth:    &AuthStorage{db},
 	}
+}
+
+func withTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) error {
+	tx, err := db.BeginTx(ctx, nil)
+
+	if err != nil {
+		return err
+	}
+
+	if err := fn(tx); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }

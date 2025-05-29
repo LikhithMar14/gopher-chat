@@ -29,45 +29,6 @@ func (s *UserService) GetUsers(ctx context.Context) ([]models.User, error) {
 	return users, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, req models.RegisterUserRequest) (*models.User, error) {
-	if err := s.validateCreateUserRequest(req); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
-	}
-
-	// Hash the password
-	hashedPassword, err := models.NewPassword(req.Password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
-	}
-
-	user := &models.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: hashedPassword,
-	}
-
-	if err := s.store.User.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
-	}
-
-	return user, nil
-}
-
-func (s *UserService) validateCreateUserRequest(req models.RegisterUserRequest) error {
-	if req.Username == "" {
-		return fmt.Errorf("username is required")
-	}
-	if req.Email == "" {
-		return fmt.Errorf("email is required")
-	}
-	if req.Password == "" {
-		return fmt.Errorf("password is required")
-	}
-	if len(req.Password) < 6 {
-		return fmt.Errorf("password must be at least 6 characters")
-	}
-	return nil
-}
 
 func (s *UserService) GetUserByID(ctx context.Context, userID int64) (*models.User, error) {
 	user, err := s.store.User.GetByID(ctx, userID)

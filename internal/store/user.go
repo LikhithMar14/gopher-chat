@@ -22,7 +22,7 @@ func (s *UserStorage) Create(ctx context.Context, user *models.User) error {
 }
 
 func (s *UserStorage) GetAll(ctx context.Context) ([]models.User, error) {
-	query := `SELECT id, username, email, created_at, updated_at FROM users ORDER BY created_at DESC`
+	query := `SELECT id, username, email, activated, created_at, updated_at FROM users ORDER BY created_at DESC`
 
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
@@ -33,7 +33,7 @@ func (s *UserStorage) GetAll(ctx context.Context) ([]models.User, error) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Activated, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -48,13 +48,13 @@ func (s *UserStorage) GetAll(ctx context.Context) ([]models.User, error) {
 }
 
 func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, error) {
-	query := `SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = $1`
+	query := `SELECT id, username, email, password_hash, activated, created_at, updated_at FROM users WHERE id = $1`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	var user models.User
 	var passwordHash []byte
-	err := s.db.QueryRowContext(ctx, query, userID).Scan(&user.ID, &user.Username, &user.Email, &passwordHash, &user.CreatedAt, &user.UpdatedAt)
+	err := s.db.QueryRowContext(ctx, query, userID).Scan(&user.ID, &user.Username, &user.Email, &passwordHash, &user.Activated, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		switch {
 		case err == sql.ErrNoRows:
@@ -64,7 +64,6 @@ func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, 
 		}
 	}
 
-	// Convert the password hash back to Password type
 	user.Password = models.NewPasswordFromHash(passwordHash)
 
 	return &user, nil

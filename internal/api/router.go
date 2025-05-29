@@ -23,7 +23,7 @@ func (app *Application) loggerMiddleware(next http.Handler) http.Handler {
 
 func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id, err := utils.ReadIDParam(r)
+		id, err := utils.ReadIDParam(r, "id")
 
 		if err != nil {
 			utils.HandleValidationError(w, errors.New("invalid input format"))
@@ -48,7 +48,7 @@ func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
 func (app *Application) userContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		id, err := utils.ReadIDParam(r)
+		id, err := utils.ReadIDParam(r, "id")
 		if err != nil {
 			utils.HandleValidationError(w, errors.New("invalid input format"))
 			return
@@ -83,7 +83,7 @@ func (app *Application) Routes() *chi.Mux {
 	commentHandler := handlers.NewCommentHandler(app.CommentService, app.PostService)
 	followHandler := handlers.NewFollowHandler(app.FollowService, app.UserService, app.Logger)
 	feedHandler := handlers.NewFeedHandler(app.UserService, app.PostService, app.FeedService)
-
+	authHandler := handlers.NewAuthHandler(app.AuthService)
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/v1/swagger/doc.json")))
 
@@ -104,8 +104,8 @@ func (app *Application) Routes() *chi.Mux {
 		})
 
 		r.Route("/users", func(r chi.Router) {
+			r.Put("/activate/{token}", authHandler.ActivateUser)
 			r.Get("/", userHandler.GetUsers)
-			r.Post("/", userHandler.CreateUser)
 			r.Route("/{id}", func(r chi.Router) {
 				r.Use(app.userContextMiddleware)
 				r.Get("/", userHandler.GetUserByID)
@@ -116,6 +116,11 @@ func (app *Application) Routes() *chi.Mux {
 				r.Get("/", feedHandler.GetFeed)
 			})
 
+		})
+
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", authHandler.RegisterUser)
+			// r.Post("/login", authHandler.Login)
 		})
 	})
 
