@@ -29,7 +29,7 @@ func NewHealthHandler(cfg config.Config) *HealthHandler {
 //	@Success		200	{object}	map[string]interface{}
 //	@Router			/health [get]
 func (h *HealthHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"status":      "ok",
 		"environment": h.config.Env,
 		"version":     version,

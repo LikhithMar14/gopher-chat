@@ -20,6 +20,7 @@ type Storage struct {
 	User    UserRepository
 	Comment CommentRepository
 	Follow  FollowRepository
+	Auth    AuthRepository
 }
 
 type PostRepository interface {
@@ -49,6 +50,10 @@ type FollowRepository interface {
 	GetFollowerCount(context.Context, int64) (int64, error)
 	GetFollowingCount(context.Context, int64) (int64, error)
 	IsFollowing(context.Context, int64, int64) (bool, error)
+}
+
+type AuthRepository interface {
+	Create(context.Context, *models.User) error
 }
 
 func NewStorage(db *sql.DB) Storage {

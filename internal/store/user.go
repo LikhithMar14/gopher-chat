@@ -14,7 +14,7 @@ type UserStorage struct {
 
 func (s *UserStorage) Create(ctx context.Context, user *models.User) error {
 	query := `INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
-	if err := s.db.QueryRowContext(ctx, query, user.Username, user.Email, []byte(user.PasswordHash)).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt); err != nil {
+	if err := s.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password.Hash()).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt); err != nil {
 		return err
 	}
 
@@ -53,7 +53,8 @@ func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, 
 	defer cancel()
 
 	var user models.User
-	err := s.db.QueryRowContext(ctx, query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
+	var passwordHash []byte
+	err := s.db.QueryRowContext(ctx, query, userID).Scan(&user.ID, &user.Username, &user.Email, &passwordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		switch {
 		case err == sql.ErrNoRows:
@@ -62,6 +63,10 @@ func (s *UserStorage) GetByID(ctx context.Context, userID int64) (*models.User, 
 			return nil, err
 		}
 	}
+
+	// Convert the password hash back to Password type
+	user.Password = models.NewPasswordFromHash(passwordHash)
+
 	return &user, nil
 }
 

@@ -55,7 +55,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.CreateUserRequest	true	"User creation request"
+//	@Param			user	body		models.RegisterUserRequest	true	"User creation request"
 //	@Success		201		{object}	map[string]interface{}		"User created successfully"
 //	@Failure		400		{object}	map[string]interface{}		"Validation error"
 //	@Failure		500		{object}	map[string]interface{}		"Internal server error"
@@ -63,7 +63,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req models.CreateUserRequest
+	var req models.RegisterUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.HandleValidationError(w, err)
 		return

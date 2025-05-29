@@ -23,8 +23,8 @@ func SetUserID(ctx context.Context, userID int64) context.Context {
 }
 
 func GetUserID(ctx context.Context) (int64, bool) {
-	_, _ = ctx.Value(UserIDKey).(int64)
-	return 668, true
+	userID, ok := ctx.Value(UserIDKey).(int64)
+	return userID, ok
 }
 
 // SetLogger adds a logger to the context

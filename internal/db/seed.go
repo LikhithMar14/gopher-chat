@@ -129,10 +129,10 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 	var createdUsers []*models.User
 
 	for _, userTemplate := range userTemplates {
-		createdUser, err := userService.CreateUser(ctx, models.CreateUserRequest{
+		createdUser, err := userService.CreateUser(ctx, models.RegisterUserRequest{
 			Username: userTemplate.Username,
 			Email:    userTemplate.Email,
-			Password: userTemplate.PasswordHash,
+			Password: "password123",
 		})
 		if err != nil {
 			logger.Error("Error creating user", zap.Error(err))
@@ -186,9 +186,8 @@ func generateUsers(num int) []*models.User {
 	for i := range num {
 		baseUsername := Usernames[i%len(Usernames)]
 		users[i] = &models.User{
-			Username:     fmt.Sprintf("%s_%d", baseUsername, i),
-			Email:        fmt.Sprintf("%s_%d@example.com", baseUsername, i),
-			PasswordHash: "password123",
+			Username: fmt.Sprintf("%s_%d", baseUsername, i),
+			Email:    fmt.Sprintf("%s_%d@example.com", baseUsername, i),
 		}
 	}
 

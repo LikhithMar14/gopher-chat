@@ -29,15 +29,21 @@ func (s *UserService) GetUsers(ctx context.Context) ([]models.User, error) {
 	return users, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserRequest) (*models.User, error) {
+func (s *UserService) CreateUser(ctx context.Context, req models.RegisterUserRequest) (*models.User, error) {
 	if err := s.validateCreateUserRequest(req); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
+	// Hash the password
+	hashedPassword, err := models.NewPassword(req.Password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
 	user := &models.User{
-		Username:     req.Username,
-		Email:        req.Email,
-		PasswordHash: req.Password,
+		Username: req.Username,
+		Email:    req.Email,
+		Password: hashedPassword,
 	}
 
 	if err := s.store.User.Create(ctx, user); err != nil {
@@ -47,7 +53,7 @@ func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserReque
 	return user, nil
 }
 
-func (s *UserService) validateCreateUserRequest(req models.CreateUserRequest) error {
+func (s *UserService) validateCreateUserRequest(req models.RegisterUserRequest) error {
 	if req.Username == "" {
 		return fmt.Errorf("username is required")
 	}
@@ -111,8 +117,7 @@ func (s *UserService) UnfollowUser(ctx context.Context, followerID int64, userID
 	}
 
 	if err := s.store.User.UnfollowUser(ctx, userID, followerID); err != nil {
-		return err 
+		return err
 	}
 	return nil
 }
-

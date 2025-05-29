@@ -1,6 +1,57 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+
+type Password struct {
+	text *string
+	hash []byte
+}	
+
+func NewPassword(plaintext string) (*Password, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	return &Password{
+		text: &plaintext,
+		hash: hash,
+	}, nil
+}
+
+func NewPasswordFromHash(hash []byte) *Password {
+	return &Password{
+		text: nil,
+		hash: hash,
+	}
+}
+
+func (p *Password) Compare(plaintext string) error {
+	return bcrypt.CompareHashAndPassword(p.hash, []byte(plaintext))
+}
+
+func (p *Password) Hash() []byte {
+	return p.hash
+}
+
+func (p *Password) Text() *string {
+	return p.text
+}
+
+func (p *Password) String() string {
+	if p.text != nil {
+		return *p.text
+	}
+	return ""
+}
+
+func (p *Password) HasText() bool {
+	return p.text != nil
+}
 
 type Post struct {
 	ID        int64      `json:"id"`
@@ -25,12 +76,12 @@ type Comment struct {
 }
 
 type User struct {
-	ID           int64     `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  *Password `json:"-"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CreatePostRequest struct {
@@ -44,10 +95,10 @@ type UpdatePostRequest struct {
 	Tags    *[]string `json:"tags" validate:"omitempty,max=5"`
 }
 
-type CreateUserRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type RegisterUserRequest struct {
+	Username string `json:"username" validate:"required,min=3,max=20"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
 }
 type CreateCommentRequest struct {
 	Content string `json:"content" validate:"required,min=1,max=500"`
@@ -57,7 +108,7 @@ type FollowUnfollowRequest struct {
 	UserID int64 `json:"user_id"`
 }
 
-// Feed-related models
+
 type FeedItem struct {
 	Post   *Post `json:"post"`
 	Author *User `json:"author"`

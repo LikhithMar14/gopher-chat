@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const Version = "1.0.0"
+const Version = "0.0.1"
 
 //	@title			Gopher Chat API
 //	@version		1.0.0
@@ -32,7 +32,7 @@ const Version = "1.0.0"
 //	@description				Description for the API Key
 
 func main() {
-
+	//http://localhost:8080/v1/swagger/index.html
 	cfg := config.Load()
 
 	logger := zap.Must(zap.NewProduction()).Sugar()
@@ -40,17 +40,17 @@ func main() {
 
 	database, err := db.Open(cfg.DB.Addr, cfg.DB.MaxOpenConns, cfg.DB.MaxIdleConns, cfg.DB.MaxLifetime)
 	if err != nil {
-		logger.Fatal("Failed to open database connection", zap.Error(err))
+		logger.Fatalw("Failed to open database connection", "error", err)
 	}
 	defer database.Close()
 
 	// should give the path related to where you are doing goose.Up
 	err = db.MigrateFS(database, migrations.FS, ".")
 	if err != nil {
-		logger.Fatal("Failed to migrate database", zap.Error(err))
+		logger.Fatalw("Failed to migrate database", "error", err)
 	}
 
-	logger.Info("Database connection pool established and migrated successfully")
+	logger.Infow("Database connection pool established and migrated successfully", "addr", cfg.DB.Addr, "maxOpenConns", cfg.DB.MaxOpenConns, "maxIdleConns", cfg.DB.MaxIdleConns, "maxLifetime", cfg.DB.MaxLifetime)
 
 	storage := store.NewStorage(database)
 

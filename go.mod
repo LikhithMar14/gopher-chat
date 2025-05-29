@@ -47,6 +47,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/pressly/goose/v3 v3.24.3
-	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/crypto v0.38.0
 	golang.org/x/text v0.25.0 // indirect
 )

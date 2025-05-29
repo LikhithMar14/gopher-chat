@@ -27,7 +27,7 @@ func NewPostHandler(postService *service.PostService, commentService *service.Co
 	}
 }
 
-// CreatePost godocn m   
+// CreatePost godoc
 //
 //	@Summary		Create a new post
 //	@Description	Create a new post with title, content, and tags
@@ -82,9 +82,9 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int						true	"Post ID"
-//	@Success		200	{object}	map[string]interface{}	"Post retrieved successfully"
-//	@Failure		404	{object}	map[string]interface{}	"Post not found"
-//	@Failure		500	{object}	map[string]interface{}	"Internal server error"
+//	@Success		200	{object}	models.Post	"Post retrieved successfully"
+//	@Failure		404	{object}	apperrors.Error	"Post not found"
+//	@Failure		500	{object}	apperrors.Error	"Internal server error"
 //	@Router			/posts/{id} [get]
 func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -101,7 +101,7 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	}
 	post.Comments = comments
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"post": post,
 	}
 	utils.WriteSuccessResponse(w, http.StatusOK, data)
@@ -121,16 +121,17 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 //	@Security		ApiKeyAuth
 //	@Router			/posts/{id} [delete]
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ReadIDParam(r)
-	if err != nil {
-		utils.HandleValidationError(w, err)
+	ctx := r.Context()
+	post, ok := h.postService.GetPostFromContext(ctx)
+
+	if !ok {
+		utils.WriteErrorResponse(w, http.StatusNotFound, "Post not found")
 		return
 	}
 
-	// Set user ID in context (hardcoded for demo - would come from auth middleware in real app)
-	ctx := r.Context()
-	ctx = utils.SetUserID(ctx, int64(1))
-	if err := h.postService.DeletePost(ctx, id); err != nil {
+	ctx = utils.SetUserID(ctx, int64(688))
+
+	if err := h.postService.DeletePost(ctx, post.ID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrPostNotFound):
 			utils.WriteErrorResponse(w, http.StatusNotFound, err.Error())
@@ -154,7 +155,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		int							true	"Post ID"
-//	@Param			post	body		models.UpdatePostRequest	true	"Post update request"
+//	@Param			post	body		models.UpdatePostRequest	true	"Post update request"	
 //	@Success		200		{object}	map[string]interface{}		"Post updated successfully"
 //	@Failure		400		{object}	map[string]interface{}		"Validation error"
 //	@Failure		404		{object}	map[string]interface{}		"Post not found"

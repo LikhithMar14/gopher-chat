@@ -20,6 +20,7 @@ type Application struct {
 	CommentService *service.CommentService
 	FollowService  *service.FollowService
 	FeedService    *service.FeedService
+	AuthService    *service.AuthService
 	Version        string
 	Logger         *zap.SugaredLogger
 }
@@ -30,6 +31,7 @@ func NewApplication(cfg config.Config, store store.Storage, version string, logg
 	commentService := service.NewCommentService(store)
 	followService := service.NewFollowService(store)
 	feedService := service.NewFeedService(store)
+	authService := service.NewAuthService(store)
 
 	return &Application{
 		Config:         cfg,
@@ -39,6 +41,7 @@ func NewApplication(cfg config.Config, store store.Storage, version string, logg
 		CommentService: commentService,
 		FollowService:  followService,
 		FeedService:    feedService,
+		AuthService:    authService,
 		Version:        version,
 		Logger:         logger,	
 	}
@@ -58,10 +61,10 @@ func (app *Application) Serve(mux *chi.Mux) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	app.Logger.Info("Starting server", zap.String("addr", app.Config.Addr))
+	app.Logger.Infow("Server has started",  "addr", app.Config.Addr, "env",app.Config.Env, "version", app.Version)
 
 	if err := srv.ListenAndServe(); err != nil {
-		app.Logger.Error("Failed to start server", zap.Error(err))
+		app.Logger.Errorw("Failed to start server", "error", err)
 		return err
 	}
 
