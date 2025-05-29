@@ -2,21 +2,26 @@ package handlers
 
 import (
 	"errors"
-	"log"
 
 	"net/http"
 
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
+	"go.uber.org/zap"
 )
 
 type FollowHandler struct {
 	followService *service.FollowService
 	userService   *service.UserService
+	logger        *zap.SugaredLogger
 }
 
-func NewFollowHandler(followService *service.FollowService, userService *service.UserService) *FollowHandler {
-	return &FollowHandler{followService: followService, userService: userService}
+func NewFollowHandler(followService *service.FollowService, userService *service.UserService, logger *zap.SugaredLogger) *FollowHandler {
+	return &FollowHandler{
+		followService: followService,
+		userService:   userService,
+		logger:        logger,
+	}
 }
 
 // FollowUser godoc
@@ -44,8 +49,8 @@ func (h *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	currentUserID := 667
 
 	err := h.followService.FollowUser(ctx, int64(currentUserID), int64(userID))
-	log.Println("err in follow handler", err)
 	if err != nil {
+		h.logger.Error("Error in follow handler", zap.Error(err))
 		utils.HandleInternalError(w, err)
 		return
 	}
@@ -76,8 +81,8 @@ func (h *FollowHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	currentUserID := 667
 
 	err := h.followService.UnfollowUser(ctx, int64(currentUserID), int64(userID))
-	log.Println("err in unfollow handler", err)
 	if err != nil {
+		h.logger.Error("Error in unfollow handler", zap.Error(err))
 		utils.HandleInternalError(w, err)
 		return
 	}

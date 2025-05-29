@@ -14,6 +14,13 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
+func (app *Application) loggerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := utils.SetLogger(r.Context(), app.Logger)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id, err := utils.ReadIDParam(r)
@@ -37,6 +44,7 @@ func (app *Application) postsContextMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
 func (app *Application) userContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -58,6 +66,7 @@ func (app *Application) userContextMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
 func (app *Application) Routes() *chi.Mux {
 	r := chi.NewRouter()
 
@@ -66,12 +75,13 @@ func (app *Application) Routes() *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(app.loggerMiddleware)
 
 	healthHandler := handlers.NewHealthHandler(app.Config)
 	userHandler := handlers.NewUserHandler(app.UserService)
-	postHandler := handlers.NewPostHandler(app.PostService, app.CommentService)
+	postHandler := handlers.NewPostHandler(app.PostService, app.CommentService, app.Logger)
 	commentHandler := handlers.NewCommentHandler(app.CommentService, app.PostService)
-	followHandler := handlers.NewFollowHandler(app.FollowService, app.UserService)
+	followHandler := handlers.NewFollowHandler(app.FollowService, app.UserService, app.Logger)
 	feedHandler := handlers.NewFeedHandler(app.UserService, app.PostService, app.FeedService)
 
 	r.Route("/v1", func(r chi.Router) {

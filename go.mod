@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.4
+	go.uber.org/zap v1.27.0
 )
 
 require (

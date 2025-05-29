@@ -5,12 +5,12 @@ import (
 
 	"database/sql"
 	"fmt"
-	"log"
 	"math/rand"
 
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
+	"go.uber.org/zap"
 )
 
 var Usernames = []string{
@@ -122,7 +122,7 @@ var Comments = []string{
 	"Keep inspiring others.", "Made me emotional.", "Sharing this with friends.", "Instant follow!", "Legendary content!",
 }
 
-func Seed(db *sql.DB, userService *service.UserService, postService *service.PostService, commentService *service.CommentService) error {
+func Seed(db *sql.DB, userService *service.UserService, postService *service.PostService, commentService *service.CommentService, logger *zap.SugaredLogger) error {
 	ctx := context.Background()
 
 	userTemplates := generateUsers(100)
@@ -135,7 +135,7 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 			Password: userTemplate.PasswordHash,
 		})
 		if err != nil {
-			log.Println("Error creating user: ", err)
+			logger.Error("Error creating user", zap.Error(err))
 			return err
 		}
 		createdUsers = append(createdUsers, createdUser)
@@ -154,7 +154,7 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 			Tags:    postTemplate.Tags,
 		})
 		if err != nil {
-			log.Println("Error creating post: ", err)
+			logger.Error("Error creating post", zap.Error(err))
 			return err
 		}
 		createdPosts = append(createdPosts, createdPost)
@@ -172,7 +172,7 @@ func Seed(db *sql.DB, userService *service.UserService, postService *service.Pos
 		}
 
 		if _, err := commentService.CreateComment(ctxWithPost, req); err != nil {
-			log.Println("Error creating comment: ", err)
+			logger.Error("Error creating comment", zap.Error(err))
 			return err
 		}
 	}

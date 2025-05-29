@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"errors"
@@ -11,21 +10,24 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
+	"go.uber.org/zap"
 )
 
 type PostHandler struct {
 	postService    *service.PostService
 	commentService *service.CommentService
+	logger         *zap.SugaredLogger
 }
 
-func NewPostHandler(postService *service.PostService, commentService *service.CommentService) *PostHandler {
+func NewPostHandler(postService *service.PostService, commentService *service.CommentService, logger *zap.SugaredLogger) *PostHandler {
 	return &PostHandler{
 		postService:    postService,
 		commentService: commentService,
+		logger:         logger,
 	}
 }
 
-// CreatePost godoc
+// CreatePost godocn m   
 //
 //	@Summary		Create a new post
 //	@Description	Create a new post with title, content, and tags
@@ -39,7 +41,13 @@ func NewPostHandler(postService *service.PostService, commentService *service.Co
 //	@Security		ApiKeyAuth
 //	@Router			/posts [post]
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	log.Println("Inside Create Post Handler")
+	// Context-based logging approach (alternative):
+	// logger := utils.GetLogger(r.Context())
+	// logger.Info("Inside Create Post Handler")
+
+	// Current approach using struct field:
+	h.logger.Info("Inside Create Post Handler")
+
 	var req models.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.HandleValidationError(w, err)

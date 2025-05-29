@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
 type Application struct {
@@ -21,9 +21,10 @@ type Application struct {
 	FollowService  *service.FollowService
 	FeedService    *service.FeedService
 	Version        string
+	Logger         *zap.SugaredLogger
 }
 
-func NewApplication(cfg config.Config, store store.Storage, version string) *Application {
+func NewApplication(cfg config.Config, store store.Storage, version string, logger *zap.SugaredLogger) *Application {
 	userService := service.NewUserService(store)
 	postService := service.NewPostService(store)
 	commentService := service.NewCommentService(store)
@@ -39,12 +40,13 @@ func NewApplication(cfg config.Config, store store.Storage, version string) *App
 		FollowService:  followService,
 		FeedService:    feedService,
 		Version:        version,
+		Logger:         logger,	
 	}
 }
 
 func (app *Application) Serve(mux *chi.Mux) error {
 	//Docs
-
+	docs.SwaggerInfo.Title = "Gopher Chat API"
 	docs.SwaggerInfo.Version = app.Version
 	docs.SwaggerInfo.Host = "localhost:8080"
 	docs.SwaggerInfo.BasePath = "/v1"
@@ -56,7 +58,12 @@ func (app *Application) Serve(mux *chi.Mux) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("Starting server on %s", app.Config.Addr)
+	app.Logger.Info("Starting server", zap.String("addr", app.Config.Addr))
 
-	return srv.ListenAndServe()
+	if err := srv.ListenAndServe(); err != nil {
+		app.Logger.Error("Failed to start server", zap.Error(err))
+		return err
+	}
+
+	return nil
 }

@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"log"
 )
 
 type FollowStorage struct {
@@ -13,10 +12,8 @@ type FollowStorage struct {
 func (s *FollowStorage) FollowUser(ctx context.Context, currentUserID int64, userID int64) error {
 	query := `INSERT INTO followers (user_id, follower_id) VALUES ($1, $2) ON CONFLICT (user_id, follower_id) DO NOTHING`
 	if _, err := s.db.ExecContext(ctx, query, currentUserID, userID); err != nil {
-		log.Println("Error while following user from follow storage", err)
 		return err
 	}
-	log.Println("No error while following user from follow storage")
 	return nil
 }
 

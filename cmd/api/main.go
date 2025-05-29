@@ -1,17 +1,15 @@
 package main
 
 import (
-	"log"
-
 	"github.com/LikhithMar14/gopher-chat/internal/api"
 	"github.com/LikhithMar14/gopher-chat/internal/config"
 	"github.com/LikhithMar14/gopher-chat/internal/db"
 	"github.com/LikhithMar14/gopher-chat/internal/migrations"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
+	"go.uber.org/zap"
 )
 
 const Version = "1.0.0"
-
 
 //	@title			Gopher Chat API
 //	@version		1.0.0
@@ -33,33 +31,32 @@ const Version = "1.0.0"
 //	@name						Authorization
 //	@description				Description for the API Key
 
-
 func main() {
 
 	cfg := config.Load()
 
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
 
 	database, err := db.Open(cfg.DB.Addr, cfg.DB.MaxOpenConns, cfg.DB.MaxIdleConns, cfg.DB.MaxLifetime)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("Failed to open database connection", zap.Error(err))
 	}
 	defer database.Close()
 
-	
 	// should give the path related to where you are doing goose.Up
 	err = db.MigrateFS(database, migrations.FS, ".")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("Failed to migrate database", zap.Error(err))
 	}
 
-	log.Println("Database connection pool established and migrated successfully")
+	logger.Info("Database connection pool established and migrated successfully")
 
 	storage := store.NewStorage(database)
 
-	app := api.NewApplication(cfg, storage, Version)
-
+	app := api.NewApplication(cfg, storage, Version, logger)
 
 	mux := app.Routes()
 
-	log.Fatal(app.Serve(mux))
+	logger.Fatal(app.Serve(mux))
 }
