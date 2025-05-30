@@ -49,7 +49,7 @@ func (h *AuthHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.authService.RegisterUser(r.Context(), req)
+	user, plainToken, err := h.authService.RegisterUser(r.Context(), req)
 	if err != nil {
 		h.handleAuthError(w, err)
 		return
@@ -57,7 +57,8 @@ func (h *AuthHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"user":    user,
-		"message": "User registered successfully",
+		"token":   plainToken,
+		"message": "User registered successfully. Please check your email for activation.",
 	}
 
 	utils.WriteSuccessResponse(w, http.StatusCreated, data)

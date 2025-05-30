@@ -84,7 +84,7 @@ func (s *AuthStorage) CreateAndInvite(ctx context.Context, user *models.User, to
 }
 
 func (s *AuthStorage) createUserInvitation(ctx context.Context, tx *sql.Tx, token string, invitationExp time.Duration, userID int64) error {
-	query := `INSERT INTO user_invitations (token, user_id, expiry) VALUES ($1::bytea, $2, $3)`
+	query := `INSERT INTO user_invitations (token, user_id, expiry) VALUES (decode($1, 'hex'), $2, $3)`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
@@ -96,21 +96,21 @@ func (s *AuthStorage) createUserInvitation(ctx context.Context, tx *sql.Tx, toke
 	return nil
 }
 
-func (s *AuthStorage) GetUserFromInvitationToken(ctx context.Context, token string) (*models.User, error) {
+func (s *AuthStorage) GetUserFromInvitationToken(ctx context.Context, hashedToken string) (*models.User, error) {
 	query := `
 		SELECT u.id, u.username, u.email, u.activated, u.created_at, u.updated_at, ui.expiry
 		FROM users u
 		INNER JOIN user_invitations ui ON u.id = ui.user_id
-		WHERE encode(ui.token, 'escape') = $1
+		WHERE encode(ui.token, 'hex') = $1
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	log.Printf("Looking up token: %s (length: %d)", token, len(token))
+	log.Printf("Looking up hashed token: %s (length: %d)", hashedToken, len(hashedToken))
 
 	var user models.User
 	var expiry time.Time
-	err := s.db.QueryRowContext(ctx, query, token).Scan(
+	err := s.db.QueryRowContext(ctx, query, hashedToken).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Activated,
 		&user.CreatedAt, &user.UpdatedAt, &expiry)
 
@@ -124,7 +124,6 @@ func (s *AuthStorage) GetUserFromInvitationToken(ctx context.Context, token stri
 		}
 	}
 
-	
 	if time.Now().After(expiry) {
 		log.Printf("Token expired: %v > %v", time.Now(), expiry)
 		return nil, apperrors.ErrTokenExpired
@@ -143,11 +142,11 @@ func (s *AuthStorage) ActivateUser(ctx context.Context, userID int64) error {
 	return err
 }
 
-func (s *AuthStorage) DeleteInvitationToken(ctx context.Context, token string) error {
-	query := `DELETE FROM user_invitations WHERE encode(token, 'escape') = $1`
+func (s *AuthStorage) DeleteInvitationToken(ctx context.Context, hashedToken string) error {
+	query := `DELETE FROM user_invitations WHERE encode(token, 'hex') = $1`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	_, err := s.db.ExecContext(ctx, query, token)
+	_, err := s.db.ExecContext(ctx, query, hashedToken)
 	return err
 }

@@ -135,6 +135,8 @@ definitions:
     type: object
   github_com_LikhithMar14_gopher-chat_internal_models.User:
     properties:
+      activated:
+        type: boolean
       created_at:
         type: string
       email:
@@ -546,6 +548,43 @@ paths:
       summary: Follow a user
       tags:
       - users
+  /users/activate/{token}:
+    put:
+      consumes:
+      - application/json
+      description: Activates a user with the provided token
+      parameters:
+      - description: Activation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User activated successfully
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "400":
+          description: Invalid token format
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "404":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "409":
+          description: User already activated
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse'
+      summary: Activates a user
+      tags:
+      - auth
   /users/me/feed:
     get:
       consumes:

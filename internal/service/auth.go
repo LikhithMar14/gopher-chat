@@ -25,10 +25,23 @@ func NewAuthService(store store.Storage, mailExpiration time.Duration) *AuthServ
 	}
 }
 
-func (s *AuthService) RegisterUser(ctx context.Context, req models.RegisterUserRequest) (*models.User, error) {
+// generatePlainToken generates a new UUID-based token
+func (s *AuthService) generatePlainToken() string {
+	return uuid.New().String()
+}
+
+// hashToken hashes a plain token using SHA256
+func (s *AuthService) hashToken(plainToken string) string {
+	hash := sha256.New()
+	hash.Write([]byte(plainToken))
+	hashedBytes := hash.Sum(nil)
+	return hex.EncodeToString(hashedBytes)
+}
+
+func (s *AuthService) RegisterUser(ctx context.Context, req models.RegisterUserRequest) (*models.User, string, error) {
 	hashedPassword, err := models.NewPassword(req.Password)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	user := &models.User{
@@ -37,23 +50,23 @@ func (s *AuthService) RegisterUser(ctx context.Context, req models.RegisterUserR
 		Password: hashedPassword,
 	}
 
-	plainToken := uuid.New().String()
+	// Generate plain token to give to user
+	plainToken := s.generatePlainToken()
 	fmt.Printf("Plain token (UUID): %s (length: %d)\n", plainToken, len(plainToken))
 
-	hash := sha256.New()
-	hash.Write([]byte(plainToken))
-	hashedBytes := hash.Sum(nil)
-	token := hex.EncodeToString(hashedBytes)
+	// Hash the token before storing in database
+	hashedToken := s.hashToken(plainToken)
 
-	fmt.Printf("Hashed token: %s (length: %d)\n", token, len(token))
-	fmt.Printf("Hash bytes length: %d\n", len(hashedBytes))
+	fmt.Printf("Hashed token for storage: %s (length: %d)\n", hashedToken, len(hashedToken))
 
-	err = s.store.Auth.CreateAndInvite(ctx, user, token, s.mailExpiration)
+	// Store the hashed token in database
+	err = s.store.Auth.CreateAndInvite(ctx, user, hashedToken, s.mailExpiration)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return user, nil
+	// Return user and plain token (to be sent to user)
+	return user, plainToken, nil
 }
 
 func (s *AuthService) Create(ctx context.Context, req models.RegisterUserRequest) (*models.User, error) {
@@ -92,7 +105,10 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*model
 }
 
 func (s *AuthService) ActivateUser(ctx context.Context, token string) error {
-	user, err := s.store.Auth.GetUserFromInvitationToken(ctx, token)
+	// Hash the incoming plain token to compare with stored hash
+	hashedToken := s.hashToken(token)
+
+	user, err := s.store.Auth.GetUserFromInvitationToken(ctx, hashedToken)
 	if err != nil {
 		return err
 	}
@@ -105,7 +121,7 @@ func (s *AuthService) ActivateUser(ctx context.Context, token string) error {
 		return err
 	}
 
-	if err := s.store.Auth.DeleteInvitationToken(ctx, token); err != nil {
+	if err := s.store.Auth.DeleteInvitationToken(ctx, hashedToken); err != nil {
 		return err
 	}
 

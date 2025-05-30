@@ -450,6 +450,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/activate/{token}": {
+            "put": {
+                "description": "Activates a user with the provided token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Activates a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activation token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User activated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "User already activated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_LikhithMar14_gopher-chat_internal_utils.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/feed": {
             "get": {
                 "security": [
@@ -855,6 +911,9 @@ const docTemplate = `{
         "github_com_LikhithMar14_gopher-chat_internal_models.User": {
             "type": "object",
             "properties": {
+                "activated": {
+                    "type": "boolean"
+                },
                 "created_at": {
                     "type": "string"
                 },
