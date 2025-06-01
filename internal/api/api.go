@@ -20,7 +20,7 @@ type Application struct {
 	CommentService *service.CommentService
 	FollowService  *service.FollowService
 	FeedService    *service.FeedService
-	AuthService    *service.AuthService
+	AuthService    *service.AuthService	
 	Version        string
 	Logger         *zap.SugaredLogger
 }
@@ -48,7 +48,7 @@ func NewApplication(cfg config.Config, store store.Storage, version string, logg
 }
 
 func (app *Application) Serve(mux *chi.Mux) error {
-	//Docs
+	//	
 	docs.SwaggerInfo.Title = "Gopher Chat API"
 	docs.SwaggerInfo.Version = app.Version
 	docs.SwaggerInfo.Host = "localhost:8080"

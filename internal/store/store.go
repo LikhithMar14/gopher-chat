@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/LikhithMar14/gopher-chat/internal/models"
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
+	"github.com/LikhithMar14/gopher-chat/pkg/database"
+	apperrors "github.com/LikhithMar14/gopher-chat/pkg/errors"
 )
 
 var (
@@ -70,16 +71,5 @@ func NewStorage(db *sql.DB) Storage {
 }
 
 func withTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) error {
-	tx, err := db.BeginTx(ctx, nil)
-
-	if err != nil {
-		return err
-	}
-
-	if err := fn(tx); err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
+	return database.WithTx(ctx, db, fn)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/utils"
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
+	apperrors "github.com/LikhithMar14/gopher-chat/pkg/errors"
 )
 
 type AuthHandler struct {

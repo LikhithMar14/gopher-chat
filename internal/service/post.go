@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 
-	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
-	"github.com/LikhithMar14/gopher-chat/internal/utils"
+	ctxutil "github.com/LikhithMar14/gopher-chat/pkg/context"
+	apperrors "github.com/LikhithMar14/gopher-chat/pkg/errors"
 )
-
 
 type PostService struct {
 	store store.Storage
@@ -23,7 +22,7 @@ func NewPostService(store store.Storage) *PostService {
 
 func (s *PostService) CreatePost(ctx context.Context, req models.CreatePostRequest) (*models.Post, error) {
 	var post models.Post
-	userID, ok := utils.GetUserID(ctx)
+	userID, ok := ctxutil.GetUserID(ctx)
 	if err := Validate.Struct(req); err != nil {
 		return nil, err
 	}
@@ -52,6 +51,7 @@ func (s *PostService) GetPostByID(ctx context.Context, id int64) (*models.Post, 
 	}
 	return post, nil
 }
+
 func (s *PostService) DeletePost(ctx context.Context, id int64) error {
 	if err := s.store.Post.Delete(ctx, id); err != nil {
 		return err
@@ -104,7 +104,6 @@ func (s *PostService) UpdatePost(ctx context.Context, req models.UpdatePostReque
 }
 
 func (s *PostService) GetPostFromContext(ctx context.Context) (*models.Post, bool) {
-	post, ok := ctx.Value(utils.PostIDKey).(*models.Post)
+	post, ok := ctx.Value(ctxutil.PostIDKey).(*models.Post)
 	return post, ok
 }
-
