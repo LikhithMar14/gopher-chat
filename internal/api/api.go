@@ -8,6 +8,7 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/config"
 	"github.com/LikhithMar14/gopher-chat/internal/service"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
+	"github.com/LikhithMar14/gopher-chat/internal/utils/mailer"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -23,15 +24,16 @@ type Application struct {
 	AuthService    *service.AuthService	
 	Version        string
 	Logger         *zap.SugaredLogger
+	Mailer         mailer.Client
 }
 
-func NewApplication(cfg config.Config, store store.Storage, version string, logger *zap.SugaredLogger) *Application {
+func NewApplication(cfg config.Config, store store.Storage, version string, logger *zap.SugaredLogger, mailer mailer.Client) *Application {
 	userService := service.NewUserService(store)
 	postService := service.NewPostService(store)
 	commentService := service.NewCommentService(store)
 	followService := service.NewFollowService(store)
 	feedService := service.NewFeedService(store)
-	authService := service.NewAuthService(store, cfg.Mail.Exp)
+	authService := service.NewAuthService(store, cfg.Mail.Exp, mailer, cfg, logger)
 
 	return &Application{
 		Config:         cfg,

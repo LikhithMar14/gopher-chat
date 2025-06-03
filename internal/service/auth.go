@@ -7,21 +7,33 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/LikhithMar14/gopher-chat/internal/config"
 	"github.com/LikhithMar14/gopher-chat/internal/models"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 	apperrors "github.com/LikhithMar14/gopher-chat/internal/utils/errors"
+	"github.com/LikhithMar14/gopher-chat/internal/utils/mailer"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type AuthService struct {
 	store          store.Storage
 	mailExpiration time.Duration
-}
+	mailer mailer.Client
+	frontendURL string
+	logger *zap.SugaredLogger
+	config config.Config
+	}
 
-func NewAuthService(store store.Storage, mailExpiration time.Duration) *AuthService {
+func NewAuthService(store store.Storage, mailExpiration time.Duration, mailer mailer.Client, config config.Config, logger *zap.SugaredLogger) *AuthService {
+
 	return &AuthService{
 		store:          store,
 		mailExpiration: mailExpiration,
+		mailer:         mailer,
+		frontendURL:    config.FrontendURL,
+		logger:         logger,
+		config:         config,
 	}
 }
 
@@ -54,18 +66,32 @@ func (s *AuthService) RegisterUser(ctx context.Context, req models.RegisterUserR
 	plainToken := s.generatePlainToken()
 	fmt.Printf("Plain token (UUID): %s (length: %d)\n", plainToken, len(plainToken))
 
-	// Hash the token before storing in database
 	hashedToken := s.hashToken(plainToken)
 
 	fmt.Printf("Hashed token for storage: %s (length: %d)\n", hashedToken, len(hashedToken))
 
-	// Store the hashed token in database
 	err = s.store.Auth.CreateAndInvite(ctx, user, hashedToken, s.mailExpiration)
 	if err != nil {
 		return nil, "", err
 	}
+	// sending email to user
+	isProdEnv := s.config.Env == "prod"
+	s.logger.Info("Sending email to user", zap.String("email", user.Email), zap.String("username", user.Username), zap.String("frontendURL", s.frontendURL), zap.String("hashedToken", hashedToken), zap.Bool("isProdEnv", isProdEnv))
 
-	// Return user and plain token (to be sent to user)
+	vars := map[string]interface{}{
+		"Username": user.Username,
+		"ActivationURL": fmt.Sprintf("%s/activate/%s", s.frontendURL, hashedToken),
+	}
+
+	if err := s.mailer.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, vars, !isProdEnv); err != nil {
+		// SAGA PATTERN
+		if err := s.store.Auth.DeleteInvitationToken(ctx, hashedToken); err != nil {
+			s.logger.Error("Error deleting invitation token", zap.Error(err))
+		}
+		s.logger.Error("Error sending email", zap.Error(err))
+		return nil, "", err
+	}
+
 	return user, plainToken, nil
 }
 
@@ -83,6 +109,7 @@ func (s *AuthService) Create(ctx context.Context, req models.RegisterUserRequest
 	if err != nil {
 		return nil, err
 	}
+
 
 	return user, nil
 }

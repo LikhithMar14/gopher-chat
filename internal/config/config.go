@@ -9,9 +9,11 @@ import (
 type Config struct {
 	Addr   string
 	DB     DBConfig
-	Env    string
-	APIURL string
-	Mail   MailConfig
+	Env       string
+	APIURL    string
+	FrontendURL string
+	Mail      MailConfig
+	FromEmail string
 }
 
 type DBConfig struct {
@@ -22,7 +24,13 @@ type DBConfig struct {
 }
 
 type MailConfig struct {
+	Sendgrid SendgridConfig
 	Exp time.Duration
+	FromEmail string
+}
+
+type SendgridConfig struct {
+	APIKey string
 }
 
 func Load() Config {
@@ -36,7 +44,12 @@ func Load() Config {
 		},
 		Env:    env.GetString("ENV", "development"),
 		APIURL: env.GetString("API_URL", "http://localhost:8080"),
+		FrontendURL: env.GetString("FRONTEND_URL", "http://localhost:3000"),
+		FromEmail: env.GetString("FROM_EMAIL", ""),
 		Mail: MailConfig{
+			Sendgrid: SendgridConfig{
+				APIKey: env.GetString("SENDGRID_API_KEY", ""),
+			},
 			Exp: env.GetDuration("MAIL_EXP", 10*time.Minute),
 		},
 	}

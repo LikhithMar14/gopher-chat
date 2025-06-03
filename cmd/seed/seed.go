@@ -6,6 +6,7 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/store"
 	db "github.com/LikhithMar14/gopher-chat/internal/store/database"
 	"github.com/LikhithMar14/gopher-chat/internal/utils/env"
+	mailer "github.com/LikhithMar14/gopher-chat/internal/utils/mailer"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +40,8 @@ func main() {
 
 	postService := service.NewPostService(storage)
 	commentService := service.NewCommentService(storage)
-	authService := service.NewAuthService(storage, cfg.Mail.Exp)
+	mailer := mailer.NewSendgrid(cfg.Mail.Sendgrid.APIKey, cfg.FromEmail)
+	authService := service.NewAuthService(storage, cfg.Mail.Exp, mailer, cfg, logger)
 
 	err = db.Seed(database, authService, postService, commentService, logger)
 	if err != nil {
