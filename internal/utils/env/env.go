@@ -1,15 +1,15 @@
 package env
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
 )
 
 func GetString(key, fallback string) string {
-
 	val, ok := os.LookupEnv(key)
-	
+	fmt.Println("val in get string",val)
 	if !ok {
 		return fallback
 	}
@@ -32,6 +32,7 @@ func GetInt(key string, fallback int) int {
 
 func GetDuration(key string, fallback time.Duration) time.Duration {
 	val, ok := os.LookupEnv(key)
+	fmt.Println("val in get duration",val)
 	if !ok {
 		return fallback
 	}
