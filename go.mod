@@ -9,6 +9,7 @@ require (
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.4
+	github.com/vorobeyme/mailtrap-go v0.0.0-20230225093659-91ab10ee8be3
 	go.uber.org/zap v1.27.0
 )
 

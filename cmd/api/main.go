@@ -5,7 +5,7 @@ import (
 	"github.com/LikhithMar14/gopher-chat/internal/config"
 	"github.com/LikhithMar14/gopher-chat/internal/migrations"
 	"github.com/LikhithMar14/gopher-chat/internal/store"
-	"github.com/LikhithMar14/gopher-chat/internal/store/database"
+	db "github.com/LikhithMar14/gopher-chat/internal/store/database"
 	"github.com/LikhithMar14/gopher-chat/internal/utils/mailer"
 	"go.uber.org/zap"
 )
@@ -53,10 +53,13 @@ func main() {
 
 	logger.Infow("Database connection pool established and migrated successfully", "addr", cfg.DB.Addr, "maxOpenConns", cfg.DB.MaxOpenConns, "maxIdleConns", cfg.DB.MaxIdleConns, "maxLifetime", cfg.DB.MaxLifetime)
 
-	mailer := mailer.NewSendgrid(cfg.Mail.Sendgrid.APIKey, cfg.FromEmail)
+	mailClient, err := mailer.NewMailTrap(cfg.Mail.MailTrap.APIKey, cfg.FromEmail)
+	if err != nil {
+		logger.Fatalw("Failed to create mail client", "error", err)
+	}
 	storage := store.NewStorage(database)
 
-	app := api.NewApplication(cfg, storage, Version, logger, mailer)
+	app := api.NewApplication(cfg, storage, Version, logger, mailClient)
 
 	mux := app.Routes()
 

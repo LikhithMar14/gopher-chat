@@ -25,11 +25,16 @@ type DBConfig struct {
 
 type MailConfig struct {
 	Sendgrid SendgridConfig
+	MailTrap MailTrapConfig
 	Exp time.Duration
 	FromEmail string
 }
 
 type SendgridConfig struct {
+	APIKey string
+}
+
+type MailTrapConfig struct {
 	APIKey string
 }
 
@@ -49,6 +54,9 @@ func Load() Config {
 		Mail: MailConfig{
 			Sendgrid: SendgridConfig{
 				APIKey: env.GetString("SENDGRID_API_KEY", ""),
+			},
+			MailTrap: MailTrapConfig{
+				APIKey: env.GetString("MAILTRAP_API_KEY", ""),
 			},
 			Exp: env.GetDuration("MAIL_EXP", 10*time.Minute),
 		},
